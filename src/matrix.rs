@@ -194,6 +194,7 @@ impl Matrix {
         }
 
         let identity_matrix : Matrix = Matrix::identity_matrix(self.rows);
+        // TODO: Combining/partitioning matrices should probably be a helper function
         let mut reduced_echelon_form_vector : Vec<Vec<f64>> = Vec::with_capacity(self.rows * 2);
 
         for row in 0..self.rows {
@@ -233,6 +234,99 @@ impl Matrix {
         }
 
         return transpose_matrix;
+    }
+
+    /// Returns a least squares solution of Ax = b. Uses the ATAx = ATb method.
+    pub fn least_squares_solution(&self, b : Vec<f64>) -> Vec<f64> {
+        if b.len() != self.rows {
+            panic!("Your b vector is not the correct length!");
+        }
+
+        let mut b_matrix_vector : Vec<Vec<f64>> = Vec::with_capacity(1);
+        b_matrix_vector.push(b);
+        let b_matrix : Matrix = Matrix::from_vector(&b_matrix_vector).transpose();
+
+        let a_transpose_a_matrix : Matrix = self.clone() * self.transpose();
+        let a_transpose_b_matrix : Matrix = self.transpose() * b_matrix;
+
+        // TODO: Combining/partitioning matrices should probably be a helper function
+        let mut solution_vector : Vec<Vec<f64>> = Vec::with_capacity(a_transpose_a_matrix.rows);
+        for row_index in 0..solution_vector.len() {
+            solution_vector.push(a_transpose_a_matrix[row_index].clone());
+            solution_vector[row_index].push(a_transpose_b_matrix[row_index][0]);
+        }
+
+        let solved_matrix : Matrix = Matrix::from_vector(&solution_vector).reduced_echelon_form();
+
+        // TODO: This could be a helper method
+        let mut x_vector : Vec<f64> = Vec::with_capacity(solved_matrix.columns - 1);
+        let last_column_index : usize = solved_matrix.columns - 1;
+        let mut current_row_index : usize = 0;
+        for column_index in 0..last_column_index {
+            if solved_matrix[current_row_index][column_index] == 1.0 {
+                x_vector.push(solved_matrix[current_row_index][last_column_index]);
+                current_row_index += 1;
+            }
+            else {
+                x_vector.push(0.0);
+            }
+        }
+
+        return x_vector;
+    }
+
+    /// Returns a solution to the given Ax = b equation, or an error if a solution does not exist
+    pub fn solve(&self, b : Vec<f64>) -> Result<Vec<f64>, &'static str> {
+        if b.len() != self.rows {
+            panic!("Your b vector is not the correct length!");
+        }
+
+        let mut b_matrix_vector : Vec<Vec<f64>> = Vec::with_capacity(1);
+        b_matrix_vector.push(b);
+        let b_matrix : Matrix = Matrix::from_vector(&b_matrix_vector).transpose();
+
+        // TODO: Combining/partitioning matrices should probably be a helper function
+        let mut solution_vector : Vec<Vec<f64>> = Vec::with_capacity(self.rows);
+        for row_index in 0..solution_vector.len() {
+            solution_vector.push(self[row_index].clone());
+            solution_vector[row_index].push(b_matrix[row_index][0]);
+        }
+
+        let solved_matrix : Matrix = Matrix::from_vector(&solution_vector).reduced_echelon_form();
+
+        let last_column_index : usize = solved_matrix.columns - 1;
+        for row_index in 0..solution_vector.len() {
+            if solution_vector[row_index][last_column_index] == 0.0 {
+                continue;
+            }
+
+            let mut check_passed : bool = false;
+            for column_index in 0..last_column_index {
+                if solved_matrix[row_index][column_index] != 0.0 {
+                    check_passed = true;
+                    break;
+                }
+            }
+
+            if !check_passed {
+                return Err("The system was inconsisent and there is no solution for b.")
+            }
+        }
+
+        // TODO: This could be a helper method
+        let mut x_vector : Vec<f64> = Vec::with_capacity(solved_matrix.columns - 1);
+        let mut current_row_index : usize = 0;
+        for column_index in 0..last_column_index {
+            if solved_matrix[current_row_index][column_index] == 1.0 {
+                x_vector.push(solved_matrix[current_row_index][last_column_index]);
+                current_row_index += 1;
+            }
+            else {
+                x_vector.push(0.0);
+            }
+        }
+
+        return Ok(x_vector);
     }
 }
 
