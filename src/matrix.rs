@@ -1,6 +1,5 @@
 use std::ops;
 use std::cmp;
-use std::string;
 
 /// Represents a mathematical matrix, zero-indexed
 pub struct Matrix {
@@ -95,30 +94,30 @@ impl Matrix {
     }
 
     /// Calculates the reduced echelon form of this matrix, and also returns the determinant (0 if the matrix is non-square)
-    pub fn REF_and_determinant(&self, determinant : &mut f64) -> Matrix {
-        let mut operatingMatrix : Vec<Vec<f64>> = self.clone().matrix;
+    pub fn reduced_echelon_and_det(&self, determinant : &mut f64) -> Matrix {
+        let mut operating_matrix : Vec<Vec<f64>> = self.clone().matrix;
 
-        let mut currentPivotRow : usize = 0;
-        let mut currentPivotColumn : usize = 0;
+        let mut current_pivot_row : usize = 0;
+        let mut current_pivot_column : usize = 0;
         let mut factor : f64;
         *determinant = 1.0;
 
-        while (self.rows - currentPivotRow > 0 && self.columns - currentPivotColumn > 0) {
+        while self.rows - current_pivot_row > 0 && self.columns - current_pivot_column > 0 {
             let mut changed : bool = false;
 
             // Find the next pivot
-            for column in currentPivotColumn..self.columns {
-                for row in currentPivotRow..self.rows {
-                    if operatingMatrix[row][column] != 0.0 {
+            for column in current_pivot_column..self.columns {
+                for row in current_pivot_row..self.rows {
+                    if operating_matrix[row][column] != 0.0 {
                         // Row swap if necessary
-                        if currentPivotRow != row {
-                            let temp : Vec<f64> = operatingMatrix[row].clone();
-                            operatingMatrix[row] = operatingMatrix[currentPivotRow].clone();
-                            operatingMatrix[currentPivotRow] = temp;
+                        if current_pivot_row != row {
+                            let temp : Vec<f64> = operating_matrix[row].clone();
+                            operating_matrix[row] = operating_matrix[current_pivot_row].clone();
+                            operating_matrix[current_pivot_row] = temp;
                             *determinant = -1.0 * *determinant;
                         }
                         // Update the column
-                        currentPivotColumn = column;
+                        current_pivot_column = column;
                         changed = true;
                         break;
                     }
@@ -134,26 +133,26 @@ impl Matrix {
             }
 
             // Set the pivot to 1
-            factor = operatingMatrix[currentPivotRow][currentPivotColumn];
-            for column in currentPivotColumn..self.columns {
-                operatingMatrix[currentPivotRow][column] /= factor;
+            factor = operating_matrix[current_pivot_row][current_pivot_column];
+            for column in current_pivot_column..self.columns {
+                operating_matrix[current_pivot_row][column] /= factor;
             }
             *determinant *= factor;
 
             // Reduce down all rows above and underneath
             for row in 0..self.rows {
-                if operatingMatrix[row][currentPivotColumn] == 0.0 || row == currentPivotRow {
+                if operating_matrix[row][current_pivot_column] == 0.0 || row == current_pivot_row {
                     continue;
                 }
-                factor = operatingMatrix[row][currentPivotColumn];
-                for column in currentPivotColumn..self.columns {
-                    operatingMatrix[row][column] -= factor * operatingMatrix[currentPivotRow][column];
+                factor = operating_matrix[row][current_pivot_column];
+                for column in current_pivot_column..self.columns {
+                    operating_matrix[row][column] -= factor * operating_matrix[current_pivot_row][column];
                 }
             }
 
             // Force the pivot to update
-            currentPivotRow += 1;
-            currentPivotColumn += 1;
+            current_pivot_row += 1;
+            current_pivot_column += 1;
         }
 
         // Checks if this matrix is square and has so has a determinant, then checks that this matrix is equal to In 
@@ -162,20 +161,20 @@ impl Matrix {
         }
         else {
             for i in 0..self.rows {
-                if operatingMatrix[i][i] == 0.0 {
+                if operating_matrix[i][i] == 0.0 {
                     *determinant = 0.0;
                     break;
                 }
             }
         }
 
-        return Self::from_vector(&operatingMatrix);
+        return Self::from_vector(&operating_matrix);
     }
 
     /// Calculates and returns the reduced echelon form of this matrix
     pub fn reduced_echelon_form(&self) -> Matrix {
         let determinant: &mut f64 = &mut 0.0;
-        return self.REF_and_determinant(determinant)
+        return self.reduced_echelon_and_det(determinant)
     }
 
     /// Calculates and returns the determinant if this matrix is square
@@ -184,7 +183,7 @@ impl Matrix {
             panic!("This matrix is not square!");
         }
         let determinant: &mut f64 = &mut 0.0;
-        self.REF_and_determinant(determinant);
+        self.reduced_echelon_and_det(determinant);
         return *determinant;
     }
 
@@ -194,46 +193,46 @@ impl Matrix {
             panic!("This matrix is not square!");
         }
 
-        let identityMatrix : Matrix = Matrix::identity_matrix(self.rows);
-        let mut REFVector : Vec<Vec<f64>> = Vec::with_capacity(self.rows * 2);
+        let identity_matrix : Matrix = Matrix::identity_matrix(self.rows);
+        let mut reduced_echelon_form_vector : Vec<Vec<f64>> = Vec::with_capacity(self.rows * 2);
 
         for row in 0..self.rows {
-            REFVector.push(self[row].clone());
+            reduced_echelon_form_vector.push(self[row].clone());
         }
         for row in 0..self.rows {
-            REFVector[row].append(&mut (identityMatrix[row].clone()));
+            reduced_echelon_form_vector[row].append(&mut (identity_matrix[row].clone()));
         }
 
-        let reducedMatrix : Matrix = Matrix::from_vector(&REFVector).reduced_echelon_form();
+        let reduced_matrix : Matrix = Matrix::from_vector(&reduced_echelon_form_vector).reduced_echelon_form();
 
         for row in 0..self.rows {
             for column in 0..self.columns {
-                if reducedMatrix[row][column] != identityMatrix[row][column] {
+                if reduced_matrix[row][column] != identity_matrix[row][column] {
                     return Err("Matrix is not invertible");
                 }
             }
         }
 
-        let mut inverseMatrix : Vec<Vec<f64>> = Vec::with_capacity(self.rows);
+        let mut inverse_matrix : Vec<Vec<f64>> = Vec::with_capacity(self.rows);
 
         for row in 0..self.rows {
-            inverseMatrix.push(reducedMatrix[row + self.rows].clone());
+            inverse_matrix.push(reduced_matrix[row + self.rows].clone());
         }
 
-        return Ok(Matrix::from_vector(&inverseMatrix));
+        return Ok(Matrix::from_vector(&inverse_matrix));
     }
 
     /// Returns a transpose of this matrix
     pub fn transpose(&self) -> Matrix {
-        let mut transposeMatrix : Matrix = Matrix::new(self.columns, self.rows);
+        let mut transpose_matrix : Matrix = Matrix::new(self.columns, self.rows);
 
         for row in 0..self.rows {
             for column in 0..self.columns {
-                transposeMatrix.set_value(column, row, self[row][column]);
+                transpose_matrix.set_value(column, row, self[row][column]);
             }
         }
 
-        return transposeMatrix;
+        return transpose_matrix;
     }
 }
 
