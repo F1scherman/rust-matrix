@@ -1,3 +1,5 @@
+/// Brayden Jonsson, 2023
+/// https://github.com/BraydenJonsson/rust-matrix
 mod matrix;
 
 fn main() {
