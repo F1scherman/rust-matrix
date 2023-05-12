@@ -75,7 +75,7 @@ impl Matrix {
     // -----PRIVATE HELPERS-----
 
     /// Calculates the inner product of two input Vec<f64> objects
-    fn inner_product(a : Vec<f64>, b : Vec<f64>) -> f64{
+    fn inner_product(a : &Vec<f64>, b : &Vec<f64>) -> f64{
         if a.len() != b.len() {
             panic!("These vectors are of different sizes!");
         }
@@ -98,6 +98,25 @@ impl Matrix {
         for row in starting_row..ending_row {
             for column in starting_column..ending_column {
                 new_matrix.set_value(row, column, self[row][column]);
+            }
+        }
+
+        return new_matrix;
+    }
+
+    /// Combines the self matrix and the input matrix such that both are side-by-side, with the input matrix (rhs) on the right.
+    fn combine(&self, rhs : &Matrix) -> Matrix {
+        if self.rows != rhs.rows {
+            panic!("These two matrices must have the same number of rows!");
+        }
+        let mut new_matrix : Matrix = Matrix::new(self.rows, self.columns + rhs.columns);
+
+        for row in 0..self.rows {
+            for column in 0..self.columns {
+                new_matrix.set_value(row, column, self[row][column]);
+            }
+            for column in 0..rhs.columns {
+                new_matrix.set_value(row, column + self.columns, rhs[row][column]);
             }
         }
 
@@ -217,17 +236,8 @@ impl Matrix {
         }
 
         let identity_matrix : Matrix = Matrix::identity_matrix(self.rows);
-        // TODO: Combining/partitioning matrices should probably be a helper function
-        let mut reduced_echelon_form_vector : Vec<Vec<f64>> = Vec::with_capacity(self.rows * 2);
 
-        for row in 0..self.rows {
-            reduced_echelon_form_vector.push(self[row].clone());
-        }
-        for row in 0..self.rows {
-            reduced_echelon_form_vector[row].append(&mut (identity_matrix[row].clone()));
-        }
-
-        let reduced_matrix : Matrix = Matrix::from_vector(&reduced_echelon_form_vector).reduced_echelon_form();
+        let reduced_matrix : Matrix = self.combine(&identity_matrix).reduced_echelon_form();
 
         if reduced_matrix.partition(0, self.rows, 0, self.columns) != identity_matrix {
             return Err("Matrix is not invertible");
@@ -263,14 +273,7 @@ impl Matrix {
         let a_transpose_a_matrix : Matrix = self.clone() * self.transpose();
         let a_transpose_b_matrix : Matrix = self.transpose() * b_matrix;
 
-        // TODO: Combining/partitioning matrices should probably be a helper function
-        let mut solution_vector : Vec<Vec<f64>> = Vec::with_capacity(a_transpose_a_matrix.rows);
-        for row_index in 0..solution_vector.len() {
-            solution_vector.push(a_transpose_a_matrix[row_index].clone());
-            solution_vector[row_index].push(a_transpose_b_matrix[row_index][0]);
-        }
-
-        let solved_matrix : Matrix = Matrix::from_vector(&solution_vector).reduced_echelon_form();
+        let solved_matrix : Matrix = a_transpose_a_matrix.combine(&a_transpose_b_matrix).reduced_echelon_form();
 
         // TODO: This could be a helper method
         let mut x_vector : Vec<f64> = Vec::with_capacity(solved_matrix.columns - 1);
@@ -299,18 +302,11 @@ impl Matrix {
         b_matrix_vector.push(b);
         let b_matrix : Matrix = Matrix::from_vector(&b_matrix_vector).transpose();
 
-        // TODO: Combining/partitioning matrices should probably be a helper function
-        let mut solution_vector : Vec<Vec<f64>> = Vec::with_capacity(self.rows);
-        for row_index in 0..solution_vector.len() {
-            solution_vector.push(self[row_index].clone());
-            solution_vector[row_index].push(b_matrix[row_index][0]);
-        }
-
-        let solved_matrix : Matrix = Matrix::from_vector(&solution_vector).reduced_echelon_form();
+        let solved_matrix : Matrix = self.combine(&b_matrix).reduced_echelon_form();
 
         let last_column_index : usize = solved_matrix.columns - 1;
-        for row_index in 0..solution_vector.len() {
-            if solution_vector[row_index][last_column_index] == 0.0 {
+        for row_index in 0..solved_matrix.rows {
+            if solved_matrix[row_index][last_column_index] == 0.0 {
                 continue;
             }
 
@@ -433,7 +429,7 @@ impl ops::Mul for Matrix {
                     b.push(rhs[i][output_column]);
                 }
 
-                output.set_value(output_row, output_column, Matrix::inner_product(a, b));
+                output.set_value(output_row, output_column, Matrix::inner_product(&a, &b));
             }
         }
 
