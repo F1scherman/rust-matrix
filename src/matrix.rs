@@ -12,6 +12,8 @@ pub struct Matrix {
 
 
 impl Matrix {
+    // -----CONSTRUCTORS-----
+
     /// Creates a new zero matrix with the given size parameters
     pub fn new(rows : usize, columns : usize) -> Self{
         let mut matrix : Vec<Vec<f64>> = Vec::with_capacity(rows);
@@ -70,15 +72,7 @@ impl Matrix {
         return matrix;
     }
 
-    /// Gets the value of the matrix at the given indices (0 indexed). Functionally equivalent to Matrix\[row\]\[column\]
-    pub fn get_value(&self, row : usize, column : usize) -> f64{
-        return self.matrix[row][column];
-    }
-
-    /// Sets the value of the matrix at the given indices (0 indexed)
-    pub fn set_value(&mut self, row : usize, column : usize, value : f64) {
-        self.matrix[row][column] = value;
-    }
+    // -----PRIVATE HELPERS-----
 
     /// Calculates the inner product of two input Vec<f64> objects
     fn inner_product(a : Vec<f64>, b : Vec<f64>) -> f64{
@@ -93,6 +87,18 @@ impl Matrix {
         }
 
         return output;
+    }
+
+    // -----PUBLIC METHODS-----
+
+    /// Gets the value of the matrix at the given indices (0 indexed). Functionally equivalent to Matrix\[row\]\[column\]
+    pub fn get_value(&self, row : usize, column : usize) -> f64{
+        return self.matrix[row][column];
+    }
+
+    /// Sets the value of the matrix at the given indices (0 indexed)
+    pub fn set_value(&mut self, row : usize, column : usize, value : f64) {
+        self.matrix[row][column] = value;
     }
 
     /// Calculates the reduced echelon form of this matrix, and also returns the determinant (0 if the matrix is non-square)
