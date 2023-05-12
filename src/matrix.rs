@@ -153,9 +153,7 @@ impl Matrix {
                     if operating_matrix[row][column] != 0.0 {
                         // Row swap if necessary
                         if current_pivot_row != row {
-                            let temp : Vec<f64> = operating_matrix[row].clone();
-                            operating_matrix[row] = operating_matrix[current_pivot_row].clone();
-                            operating_matrix[current_pivot_row] = temp;
+                            operating_matrix.swap(row, current_pivot_row);
                             *determinant = -1.0 * *determinant;
                         }
                         // Update the column
