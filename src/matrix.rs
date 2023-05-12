@@ -89,6 +89,21 @@ impl Matrix {
         return output;
     }
 
+    /// Partitions the matrix such that a new matrix is created where the rows/columns of the new matrix are defined by being within the parameters bounds (ending is exclusive)
+    /// 
+    /// ie. Partitioning a matrix "example_matrix" with parameters "example_matrix.partition(0, example_matrix.rows, 0, example_matrix.columns)" will return a matrix equivalent to example_matrix.
+    fn partition(&self, starting_row : usize, ending_row : usize, starting_column : usize, ending_column : usize)  -> Matrix{
+        let mut new_matrix : Matrix = Matrix::new(ending_row - starting_row, ending_column - starting_column);
+
+        for row in starting_row..ending_row {
+            for column in starting_column..ending_column {
+                new_matrix.set_value(row, column, self[row][column]);
+            }
+        }
+
+        return new_matrix;
+    }
+
     // -----PUBLIC METHODS-----
 
     /// Gets the value of the matrix at the given indices (0 indexed). Functionally equivalent to Matrix\[row\]\[column\]
@@ -214,21 +229,12 @@ impl Matrix {
 
         let reduced_matrix : Matrix = Matrix::from_vector(&reduced_echelon_form_vector).reduced_echelon_form();
 
-        for row in 0..self.rows {
-            for column in 0..self.columns {
-                if reduced_matrix[row][column] != identity_matrix[row][column] {
-                    return Err("Matrix is not invertible");
-                }
-            }
+        if reduced_matrix.partition(0, self.rows, 0, self.columns) != identity_matrix {
+            return Err("Matrix is not invertible");
         }
 
-        let mut inverse_matrix : Vec<Vec<f64>> = Vec::with_capacity(self.rows);
-
-        for row in 0..self.rows {
-            inverse_matrix.push(reduced_matrix[row + self.rows].clone());
-        }
-
-        return Ok(Matrix::from_vector(&inverse_matrix));
+        let inverse_matrix : Matrix = reduced_matrix.partition(self.rows, reduced_matrix.rows, self.columns, reduced_matrix.columns);
+        return Ok(inverse_matrix);
     }
 
     /// Returns a transpose of this matrix
