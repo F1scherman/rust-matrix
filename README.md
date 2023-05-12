@@ -5,4 +5,5 @@ This is a simple project that I'm making to try and familiarize myself with the 
 # To-Do List
 - QR Decomposition
 - QR Algorithm for Eigenvalues
+- Make the class generic for number formats other than f64
 - More to come...
