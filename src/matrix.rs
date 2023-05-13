@@ -6,6 +6,7 @@ use std::ops;
 use std::cmp;
 
 /// Represents a mathematical matrix, zero-indexed
+#[derive(Debug)]
 pub struct Matrix {
     matrix : Vec<Vec<f64>>,
     rows : usize,
