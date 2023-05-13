@@ -1,5 +1,7 @@
 /// Brayden Jonsson, 2023
 /// https://github.com/BraydenJonsson/rust-matrix
+/// 
+/// Contains a struct and methods for representing a mathematical matrix
 use std::ops;
 use std::cmp;
 
