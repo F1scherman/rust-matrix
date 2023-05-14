@@ -75,6 +75,48 @@ impl Matrix {
         return matrix;
     }
 
+    /// Constructs a new square matrix from the given list of numbers, listed left-to-right, up-to-down.
+    /// The length of the list must be a perfect square.
+    pub fn square_matrix_from_list(list_of_numbers : &Vec<f64>) -> Self {
+        let list_length : f64 = list_of_numbers.len() as f64;
+        if f64::sqrt(list_length).fract() != 0.0 {
+            panic!("This list size is not a perfect square!");
+        }
+
+        let matrix_size : usize = f64::sqrt(list_length) as usize;
+        let mut matrix : Matrix = Matrix::square_matrix(matrix_size);
+        let mut list_index : usize = 0;
+
+        for row_index in 0..matrix_size {
+            for column_index in 0..matrix_size {
+                matrix.set_value(row_index, column_index, list_of_numbers[list_index]);
+                list_index += 1;
+            }
+        }
+
+        return matrix;
+    }
+
+    /// Constructs a new matrix from the given list of numbers, listed left-to-right, up-to-down.
+    /// The length of the list must be match the dimensions
+    pub fn matrix_from_list(list_of_numbers : &Vec<f64>, rows : usize, columns : usize) -> Self {
+        if list_of_numbers.len() != rows * columns {
+            panic!("This list size does not match the dimensions!");
+        }
+
+        let mut matrix : Matrix = Matrix::new(rows, columns);
+        let mut list_index : usize = 0;
+
+        for row_index in 0..rows {
+            for column_index in 0..columns {
+                matrix.set_value(row_index, column_index, list_of_numbers[list_index]);
+                list_index += 1;
+            }
+        }
+
+        return matrix;
+    }
+
     // -----PRIVATE HELPERS-----
 
     /// Calculates the inner product of two input Vec<f64> objects
