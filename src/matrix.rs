@@ -309,9 +309,7 @@ impl Matrix {
             panic!("Your b vector is not the correct length!");
         }
 
-        let mut b_matrix_vector : Vec<Vec<f64>> = Vec::with_capacity(1);
-        b_matrix_vector.push(b);
-        let b_matrix : Matrix = Matrix::from_vector(&b_matrix_vector).transpose();
+        let b_matrix : Matrix = Matrix::matrix_from_list(&b, b.len(), 1);
 
         let a_transpose_a_matrix : Matrix = self.clone() * self.transpose();
         let a_transpose_b_matrix : Matrix = self.transpose() * b_matrix;
@@ -341,9 +339,7 @@ impl Matrix {
             panic!("Your b vector is not the correct length!");
         }
 
-        let mut b_matrix_vector : Vec<Vec<f64>> = Vec::with_capacity(1);
-        b_matrix_vector.push(b);
-        let b_matrix : Matrix = Matrix::from_vector(&b_matrix_vector).transpose();
+        let b_matrix : Matrix = Matrix::matrix_from_list(&b, b.len(), 1);
 
         let solved_matrix : Matrix = self.combine(&b_matrix).reduced_echelon_form();
 
