@@ -36,7 +36,7 @@ impl Matrix {
 
     /// Creates a new square zero matrix with the given size parameters
     pub fn square_matrix(size: usize) -> Self {
-        return Self::new(size, size);
+        Self::new(size, size)
     }
 
     /// Creates a new matrix from the given 2D vector array. The array must have consistent rectangular sizing
@@ -52,8 +52,8 @@ impl Matrix {
 
         let mut matrix: Vec<Vec<f64>> = Vec::with_capacity(rows);
 
-        for row_index in 0..rows {
-            matrix.push(vector[row_index].clone());
+        for row in vector {
+            matrix.push(row.clone());
         }
 
         Self {
@@ -71,7 +71,7 @@ impl Matrix {
             matrix.set_value(i, i, 1.0);
         }
 
-        return matrix;
+        matrix
     }
 
     /// Constructs a new square matrix from the given list of numbers, listed left-to-right, up-to-down.
@@ -93,7 +93,7 @@ impl Matrix {
             }
         }
 
-        return matrix;
+        matrix
     }
 
     /// Constructs a new matrix from the given list of numbers, listed left-to-right, up-to-down.
@@ -113,7 +113,7 @@ impl Matrix {
             }
         }
 
-        return matrix;
+        matrix
     }
 
     // -----PRIVATE HELPERS-----
@@ -130,7 +130,7 @@ impl Matrix {
             output += a[i] * b[i];
         }
 
-        return output;
+        output
     }
 
     /// Partitions the matrix such that a new matrix is created where the rows/columns of the new matrix are defined by being within the parameters bounds (ending is exclusive)
@@ -152,7 +152,7 @@ impl Matrix {
             }
         }
 
-        return new_matrix;
+        new_matrix
     }
 
     /// Combines the self matrix and the input matrix such that both are side-by-side, with the input matrix (rhs) on the right.
@@ -171,14 +171,14 @@ impl Matrix {
             }
         }
 
-        return new_matrix;
+        new_matrix
     }
 
     // -----PUBLIC METHODS-----
 
     /// Gets the value of the matrix at the given indices (0 indexed). Functionally equivalent to Matrix\[row\]\[column\]
     pub fn get_value(&self, row: usize, column: usize) -> f64 {
-        return self.matrix[row][column];
+        self.matrix[row][column]
     }
 
     /// Sets the value of the matrix at the given indices (0 indexed)
@@ -195,6 +195,7 @@ impl Matrix {
         let mut factor: f64;
         *determinant = 1.0;
 
+        #[allow(clippy::mut_range_bound)]
         while self.rows - current_pivot_row > 0 && self.columns - current_pivot_column > 0 {
             let mut changed: bool = false;
 
@@ -205,7 +206,7 @@ impl Matrix {
                         // Row swap if necessary
                         if current_pivot_row != row {
                             operating_matrix.swap(row, current_pivot_row);
-                            *determinant = -1.0 * *determinant;
+                            *determinant *= -1.0;
                         }
                         // Update the column
                         current_pivot_column = column;
@@ -251,21 +252,21 @@ impl Matrix {
         if self.rows != self.columns {
             *determinant = 0.0;
         } else {
-            for i in 0..self.rows {
-                if operating_matrix[i][i] == 0.0 {
+            for (i, row) in operating_matrix.iter().enumerate() {
+                if row[i] == 0.0 {
                     *determinant = 0.0;
                     break;
                 }
             }
         }
 
-        return Self::from_vector(&operating_matrix);
+        Self::from_vector(&operating_matrix)
     }
 
     /// Calculates and returns the reduced echelon form of this matrix
     pub fn reduced_echelon_form(&self) -> Matrix {
         let determinant: &mut f64 = &mut 0.0;
-        return self.reduced_echelon_and_det(determinant);
+        self.reduced_echelon_and_det(determinant)
     }
 
     /// Calculates and returns the determinant if this matrix is square
@@ -275,7 +276,7 @@ impl Matrix {
         }
         let determinant: &mut f64 = &mut 0.0;
         self.reduced_echelon_and_det(determinant);
-        return *determinant;
+        *determinant
     }
 
     /// Calculates and returns the inverse of this matrix, if this matrix is invertible
@@ -298,7 +299,7 @@ impl Matrix {
             self.columns,
             reduced_matrix.columns,
         );
-        return Ok(inverse_matrix);
+        Ok(inverse_matrix)
     }
 
     /// Returns a transpose of this matrix
@@ -311,7 +312,7 @@ impl Matrix {
             }
         }
 
-        return transpose_matrix;
+        transpose_matrix
     }
 
     /// Returns a least squares solution of Ax = b. Uses the ATAx = ATb method.
@@ -342,7 +343,7 @@ impl Matrix {
             }
         }
 
-        return x_vector;
+        x_vector
     }
 
     /// Returns a solution to the given Ax = b equation, or an error if a solution does not exist
@@ -386,7 +387,7 @@ impl Matrix {
             }
         }
 
-        return Ok(x_vector);
+        Ok(x_vector)
     }
 }
 
@@ -399,11 +400,11 @@ impl Clone for Matrix {
             matrix.push(self.matrix[i].clone());
         }
 
-        return Matrix {
-            matrix: matrix,
+        Matrix {
+            matrix,
             rows: self.rows,
             columns: self.columns,
-        };
+        }
     }
 }
 
@@ -425,7 +426,7 @@ impl ops::Add for Matrix {
             }
         }
 
-        return output;
+        output
     }
 }
 
@@ -442,7 +443,7 @@ impl ops::Sub for Matrix {
     /// Subtracts the two matrices. Equivalent to self + rhs * -1.0
     fn sub(self, rhs: Matrix) -> Matrix {
         let negative_rhs: Matrix = rhs * -1.0;
-        return self + negative_rhs;
+        self + negative_rhs
     }
 }
 
@@ -482,7 +483,7 @@ impl ops::Mul for Matrix {
             }
         }
 
-        return output;
+        output
     }
 }
 
@@ -500,7 +501,7 @@ impl ops::Mul<f64> for Matrix {
             }
         }
 
-        return output;
+        output
     }
 }
 
@@ -509,7 +510,7 @@ impl ops::Mul<Matrix> for f64 {
 
     /// Scales rhs matrix by self
     fn mul(self, rhs: Matrix) -> Matrix {
-        return rhs * self;
+        rhs * self
     }
 }
 
@@ -541,11 +542,7 @@ impl cmp::PartialEq for Matrix {
             }
         }
 
-        return true;
-    }
-
-    fn ne(&self, other: &Self) -> bool {
-        return !(self == other);
+        true
     }
 }
 

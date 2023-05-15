@@ -8,8 +8,8 @@ mod matrix;
 mod tests {
     use crate::matrix::Matrix;
 
-    const STANDARD_MATRIX_A: &'static [f64] = &[1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0];
-    const STANDARD_MATRIX_B: &'static [f64] = &[5.7, 1.2, 0.0, 4.9, -7.1, -2.1, 77.1, 0.0, 9.1];
+    const STANDARD_MATRIX_A: &[f64] = &[1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0];
+    const STANDARD_MATRIX_B: &[f64] = &[5.7, 1.2, 0.0, 4.9, -7.1, -2.1, 77.1, 0.0, 9.1];
 
     #[test]
     fn square_addition() {
