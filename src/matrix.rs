@@ -18,14 +18,7 @@ impl Matrix {
 
     /// Creates a new zero matrix with the given size parameters
     pub fn new(rows: usize, columns: usize) -> Self {
-        let mut matrix: Vec<Vec<f64>> = Vec::with_capacity(rows);
-
-        for row_index in 0..rows {
-            matrix.push(Vec::with_capacity(columns));
-            for _column_index in 0..columns {
-                matrix[row_index].push(0.0);
-            }
-        }
+        let matrix: Vec<Vec<f64>> = vec![vec![0.0; columns]; rows];
 
         Self {
             matrix,
@@ -50,11 +43,7 @@ impl Matrix {
             }
         }
 
-        let mut matrix: Vec<Vec<f64>> = Vec::with_capacity(rows);
-
-        for row in vector {
-            matrix.push(row.clone());
-        }
+        let matrix: Vec<Vec<f64>> = vector.clone();
 
         Self {
             matrix,
