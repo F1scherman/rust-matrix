@@ -137,7 +137,11 @@ impl Matrix {
 
         for row in starting_row..ending_row {
             for column in starting_column..ending_column {
-                new_matrix.set_value(row, column, self[row][column]);
+                new_matrix.set_value(
+                    row - starting_row,
+                    column - starting_column,
+                    self[row][column],
+                );
             }
         }
 
@@ -282,12 +286,8 @@ impl Matrix {
             return Err("Matrix is not invertible");
         }
 
-        let inverse_matrix: Matrix = reduced_matrix.partition(
-            self.rows,
-            reduced_matrix.rows,
-            self.columns,
-            reduced_matrix.columns,
-        );
+        let inverse_matrix: Matrix =
+            reduced_matrix.partition(0, self.rows, self.columns, reduced_matrix.columns);
         Ok(inverse_matrix)
     }
 
@@ -377,6 +377,24 @@ impl Matrix {
         }
 
         Ok(x_vector)
+    }
+
+    /// Returns true if these two matrices are equal, within the given delta for float comparisons
+    pub fn equals(&self, other: &Matrix, delta: f64) -> bool {
+        if self.rows != other.rows || self.columns != other.columns {
+            return false;
+        }
+
+        for row in 0..self.rows {
+            for column in 0..self.columns {
+                let difference: f64 = (self[row][column] - other[row][column]).abs();
+                if difference > delta {
+                    return false;
+                }
+            }
+        }
+
+        true
     }
 }
 
@@ -519,19 +537,7 @@ impl ops::MulAssign<f64> for Matrix {
 
 impl cmp::PartialEq for Matrix {
     fn eq(&self, other: &Self) -> bool {
-        if self.rows != other.rows || self.columns != other.columns {
-            return false;
-        }
-
-        for row in 0..self.rows {
-            for column in 0..self.columns {
-                if self[row][column] != other[row][column] {
-                    return false;
-                }
-            }
-        }
-
-        true
+        self.equals(other, 0.0)
     }
 }
 
