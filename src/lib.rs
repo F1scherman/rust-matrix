@@ -28,6 +28,13 @@ mod tests {
         0.075234102230727652557,
     ];
 
+    const STANDARD_MATRIX_A_DETERMINANT: f64 = 0.0;
+    const STANDARD_MATRIX_B_DETERMINANT: f64 = -616.077;
+
+    const STANDARD_MATRIX_A_REF: &[f64] = &[1.0, 0.0, -1.0, 0.0, 1.0, 2.0, 0.0, 0.0, 0.0];
+
+    const STANDARD_MATRIX_B_REF: &[f64] = &[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0];
+
     #[test]
     fn square_addition() {
         let a: Matrix = Matrix::square_matrix_from_list(&STANDARD_MATRIX_A.to_vec());
@@ -101,5 +108,41 @@ mod tests {
         let solution_matrix: Matrix =
             Matrix::square_matrix_from_list(&STANDARD_MATRIX_B_INVERSE_SOLUTION.to_vec());
         assert!(solution_matrix.equals(&(b.inverse()).unwrap(), COMPARISON_TOLERANCE));
+    }
+
+    #[test]
+    fn a_determinant() {
+        let a: Matrix = Matrix::square_matrix_from_list(&STANDARD_MATRIX_A.to_vec());
+
+        let determinant: f64 = a.determinant();
+
+        assert!((determinant - STANDARD_MATRIX_A_DETERMINANT).abs() < COMPARISON_TOLERANCE);
+    }
+
+    #[test]
+    fn b_determinant() {
+        let b: Matrix = Matrix::square_matrix_from_list(&STANDARD_MATRIX_B.to_vec());
+
+        let determinant: f64 = b.determinant();
+
+        assert!((determinant - STANDARD_MATRIX_B_DETERMINANT).abs() < COMPARISON_TOLERANCE);
+    }
+
+    #[test]
+    fn a_ref() {
+        let a: Matrix = Matrix::square_matrix_from_list(&STANDARD_MATRIX_A.to_vec());
+
+        let solution_matrix: Matrix =
+            Matrix::square_matrix_from_list(&STANDARD_MATRIX_A_REF.to_vec());
+        assert!(solution_matrix.equals(&(a.reduced_echelon_form()), COMPARISON_TOLERANCE));
+    }
+
+    #[test]
+    fn b_ref() {
+        let b: Matrix = Matrix::square_matrix_from_list(&STANDARD_MATRIX_B.to_vec());
+
+        let solution_matrix: Matrix =
+            Matrix::square_matrix_from_list(&STANDARD_MATRIX_B_REF.to_vec());
+        assert!(solution_matrix.equals(&(b.reduced_echelon_form()), COMPARISON_TOLERANCE));
     }
 }
