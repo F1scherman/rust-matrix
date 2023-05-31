@@ -305,19 +305,38 @@ impl Matrix {
     }
 
     /// Returns a least squares solution of Ax = b. Uses the ATAx = ATb method.
-    pub fn least_squares_solution(&self, b: Vec<f64>) -> Vec<f64> {
+    pub fn least_squares_solution(&self, b: Vec<f64>) -> Result<Vec<f64>, &'static str> {
         if b.len() != self.rows {
             panic!("Your b vector is not the correct length!");
         }
 
         let b_matrix: Matrix = Matrix::matrix_from_list(&b, b.len(), 1);
 
-        let a_transpose_a_matrix: Matrix = self.clone() * self.transpose();
+        let a_transpose_a_matrix: Matrix = self.transpose() * self.clone();
         let a_transpose_b_matrix: Matrix = self.transpose() * b_matrix;
 
         let solved_matrix: Matrix = a_transpose_a_matrix
             .combine(&a_transpose_b_matrix)
             .reduced_echelon_form();
+
+        let last_column_index: usize = solved_matrix.columns - 1;
+        for row_index in 0..solved_matrix.rows {
+            if solved_matrix[row_index][last_column_index] == 0.0 {
+                continue;
+            }
+
+            let mut check_passed: bool = false;
+            for column_index in 0..last_column_index {
+                if solved_matrix[row_index][column_index] != 0.0 {
+                    check_passed = true;
+                    break;
+                }
+            }
+
+            if !check_passed {
+                return Err("The system was inconsistent and there is no solution for b. (In this case, these means an arithmetic problem, probably due to floating point inaccuracy).");
+            }
+        }
 
         // TODO: This could be a helper method
         let mut x_vector: Vec<f64> = Vec::with_capacity(solved_matrix.columns - 1);
@@ -332,7 +351,7 @@ impl Matrix {
             }
         }
 
-        x_vector
+        Ok(x_vector)
     }
 
     /// Returns a solution to the given Ax = b equation, or an error if a solution does not exist
@@ -360,7 +379,7 @@ impl Matrix {
             }
 
             if !check_passed {
-                return Err("The system was inconsisent and there is no solution for b.");
+                return Err("The system was inconsistent and there is no solution for b.");
             }
         }
 

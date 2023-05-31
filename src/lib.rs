@@ -35,6 +35,20 @@ mod tests {
 
     const STANDARD_MATRIX_B_REF: &[f64] = &[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0];
 
+    const STANDARD_MATRIX_A_TRANSPOSE: &[f64] = &[1.0, 4.0, 7.0, 2.0, 5.0, 8.0, 3.0, 6.0, 9.0];
+
+    const STANDARD_MATRIX_B_TRANSPOSE: &[f64] = &[5.7, 4.9, 77.1, 1.2, -7.1, 0.0, 0.0, -2.1, 9.1];
+
+    const B_VECTOR: &[f64] = &[3.9, 7.2, -1.0];
+
+    const WRONG_LENGTH_B_VECTOR: &[f64] = &[-2.0, 1.0, 9.8, -0.1];
+
+    const STANDARD_MATRIX_B_SOLUTION: &[f64] = &[
+        0.53253570576405222074,
+        0.72045539762075195146,
+        -4.6218135070778490354,
+    ];
+
     #[test]
     fn square_addition() {
         let a: Matrix = Matrix::square_matrix_from_list(&STANDARD_MATRIX_A.to_vec());
@@ -144,5 +158,77 @@ mod tests {
         let solution_matrix: Matrix =
             Matrix::square_matrix_from_list(&STANDARD_MATRIX_B_REF.to_vec());
         assert!(solution_matrix.equals(&(b.reduced_echelon_form()), COMPARISON_TOLERANCE));
+    }
+
+    #[test]
+    fn a_transpose() {
+        let a: Matrix = Matrix::square_matrix_from_list(&STANDARD_MATRIX_A.to_vec());
+
+        let solution_matrix: Matrix =
+            Matrix::square_matrix_from_list(&STANDARD_MATRIX_A_TRANSPOSE.to_vec());
+        assert!(solution_matrix.equals(&(a.transpose()), COMPARISON_TOLERANCE));
+    }
+
+    #[test]
+    fn b_transpose() {
+        let b: Matrix = Matrix::square_matrix_from_list(&STANDARD_MATRIX_B.to_vec());
+
+        let solution_matrix: Matrix =
+            Matrix::square_matrix_from_list(&STANDARD_MATRIX_B_TRANSPOSE.to_vec());
+        assert!(solution_matrix.equals(&(b.transpose()), COMPARISON_TOLERANCE));
+    }
+
+    #[test]
+    #[should_panic]
+    fn wrong_length_b_vector() {
+        let a: Matrix = Matrix::square_matrix_from_list(&STANDARD_MATRIX_A.to_vec());
+
+        a.solve(WRONG_LENGTH_B_VECTOR.to_vec());
+    }
+
+    #[test]
+    fn solve_a() {
+        let a: Matrix = Matrix::square_matrix_from_list(&STANDARD_MATRIX_A.to_vec());
+
+        assert_eq!(
+            a.solve(B_VECTOR.to_vec()).unwrap_err(),
+            "The system was inconsistent and there is no solution for b."
+        );
+    }
+
+    #[test]
+    fn solve_b() {
+        let b: Matrix = Matrix::square_matrix_from_list(&STANDARD_MATRIX_B.to_vec());
+
+        let solution_vector: Vec<f64> = STANDARD_MATRIX_B_SOLUTION.to_vec();
+
+        let b_solution: Vec<f64> = b.solve(B_VECTOR.to_vec()).unwrap();
+
+        for i in 0..solution_vector.len() {
+            assert!((solution_vector[i] - b_solution[i]).abs() < COMPARISON_TOLERANCE);
+        }
+    }
+
+    #[test]
+    fn least_squares_a() {
+        let a: Matrix = Matrix::square_matrix_from_list(&STANDARD_MATRIX_A.to_vec());
+
+        assert_eq!(
+            a.least_squares_solution(B_VECTOR.to_vec()).unwrap_err(),
+            "The system was inconsistent and there is no solution for b. (In this case, these means an arithmetic problem, probably due to floating point inaccuracy)."
+        );
+    }
+
+    #[test]
+    fn least_squares_b() {
+        let b: Matrix = Matrix::square_matrix_from_list(&STANDARD_MATRIX_B.to_vec());
+
+        let solution_vector: Vec<f64> = STANDARD_MATRIX_B_SOLUTION.to_vec();
+
+        let b_solution: Vec<f64> = b.least_squares_solution(B_VECTOR.to_vec()).unwrap();
+
+        for i in 0..solution_vector.len() {
+            assert!((solution_vector[i] - b_solution[i]).abs() < COMPARISON_TOLERANCE);
+        }
     }
 }
