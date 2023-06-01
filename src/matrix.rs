@@ -1,3 +1,4 @@
+use num_traits;
 /// Brayden Jonsson, 2023
 /// https://github.com/BraydenJonsson/rust-matrix
 ///
@@ -7,18 +8,38 @@ use std::ops;
 
 /// Represents a mathematical matrix, zero-indexed
 #[derive(Debug)]
-pub struct Matrix {
-    matrix: Vec<Vec<f64>>,
+pub struct Matrix<T>
+where
+    T: num_traits::Num
+        + num_traits::NumAssign
+        + num_traits::NumAssignOps
+        + num_traits::sign::Signed
+        + std::cmp::PartialOrd
+        + ops::Deref
+        + Copy
+        + From<f64>,
+{
+    matrix: Vec<Vec<T>>,
     rows: usize,
     columns: usize,
 }
 
-impl Matrix {
+impl<T> Matrix<T>
+where
+T: num_traits::Num
+    + num_traits::NumAssign
+    + num_traits::NumAssignOps
+    + num_traits::sign::Signed
+    + std::cmp::PartialOrd
+    + ops::Deref
+    + Copy
+    + From<f64>,
+{
     // -----CONSTRUCTORS-----
 
     /// Creates a new zero matrix with the given size parameters
     pub fn new(rows: usize, columns: usize) -> Self {
-        let matrix: Vec<Vec<f64>> = vec![vec![0.0; columns]; rows];
+        let matrix: Vec<Vec<T>> = vec![vec![T::from(0.0); columns]; rows];
 
         Self {
             matrix,
@@ -33,7 +54,7 @@ impl Matrix {
     }
 
     /// Creates a new matrix from the given 2D vector array. The array must have consistent rectangular sizing
-    pub fn from_vector(vector: &Vec<Vec<f64>>) -> Self {
+    pub fn from_vector(vector: &Vec<Vec<T>>) -> Self {
         let rows: usize = vector.capacity();
         let columns: usize = vector[0].capacity();
 
@@ -43,7 +64,7 @@ impl Matrix {
             }
         }
 
-        let matrix: Vec<Vec<f64>> = vector.clone();
+        let matrix: Vec<Vec<T>> = vector.clone();
 
         Self {
             matrix,
@@ -54,10 +75,10 @@ impl Matrix {
 
     /// Creates a new identity matrix with the given size
     pub fn identity_matrix(size: usize) -> Self {
-        let mut matrix: Matrix = Self::square_matrix(size);
+        let mut matrix: Self = Self::square_matrix(size);
 
         for i in 0..matrix.rows {
-            matrix.set_value(i, i, 1.0);
+            matrix.set_value(i, i, T::from(1.0));
         }
 
         matrix
@@ -65,14 +86,14 @@ impl Matrix {
 
     /// Constructs a new square matrix from the given list of numbers, listed left-to-right, up-to-down.
     /// The length of the list must be a perfect square.
-    pub fn square_matrix_from_list(list_of_numbers: &Vec<f64>) -> Self {
+    pub fn square_matrix_from_list(list_of_numbers: &Vec<T>) -> Self {
         let list_length: f64 = list_of_numbers.len() as f64;
         if f64::sqrt(list_length).fract() != 0.0 {
             panic!("This list size is not a perfect square!");
         }
 
         let matrix_size: usize = f64::sqrt(list_length) as usize;
-        let mut matrix: Matrix = Matrix::square_matrix(matrix_size);
+        let mut matrix: Self = Self::square_matrix(matrix_size);
         let mut list_index: usize = 0;
 
         for row_index in 0..matrix_size {
@@ -87,12 +108,12 @@ impl Matrix {
 
     /// Constructs a new matrix from the given list of numbers, listed left-to-right, up-to-down.
     /// The length of the list must be match the dimensions
-    pub fn matrix_from_list(list_of_numbers: &Vec<f64>, rows: usize, columns: usize) -> Self {
+    pub fn matrix_from_list(list_of_numbers: &Vec<T>, rows: usize, columns: usize) -> Self {
         if list_of_numbers.len() != rows * columns {
             panic!("This list size does not match the dimensions!");
         }
 
-        let mut matrix: Matrix = Matrix::new(rows, columns);
+        let mut matrix: Self = Self::new(rows, columns);
         let mut list_index: usize = 0;
 
         for row_index in 0..rows {
@@ -107,13 +128,13 @@ impl Matrix {
 
     // -----PRIVATE HELPERS-----
 
-    /// Calculates the inner product of two input Vec<f64> objects
-    fn inner_product(a: &Vec<f64>, b: &Vec<f64>) -> f64 {
+    /// Calculates the inner product of two input Vec<T> objects
+    fn inner_product(a: &Vec<T>, b: &Vec<T>) -> T {
         if a.len() != b.len() {
             panic!("These vectors are of different sizes!");
         }
 
-        let mut output: f64 = 0.0;
+        let mut output: T = T::from(0.0);
 
         for i in 0..a.len() {
             output += a[i] * b[i];
@@ -131,9 +152,9 @@ impl Matrix {
         ending_row: usize,
         starting_column: usize,
         ending_column: usize,
-    ) -> Matrix {
-        let mut new_matrix: Matrix =
-            Matrix::new(ending_row - starting_row, ending_column - starting_column);
+    ) -> Self {
+        let mut new_matrix: Self =
+            Self::new(ending_row - starting_row, ending_column - starting_column);
 
         for row in starting_row..ending_row {
             for column in starting_column..ending_column {
@@ -149,11 +170,11 @@ impl Matrix {
     }
 
     /// Combines the self matrix and the input matrix such that both are side-by-side, with the input matrix (rhs) on the right.
-    fn combine(&self, rhs: &Matrix) -> Matrix {
+    fn combine(&self, rhs: &Self) -> Self {
         if self.rows != rhs.rows {
             panic!("These two matrices must have the same number of rows!");
         }
-        let mut new_matrix: Matrix = Matrix::new(self.rows, self.columns + rhs.columns);
+        let mut new_matrix: Self = Self::new(self.rows, self.columns + rhs.columns);
 
         for row in 0..self.rows {
             for column in 0..self.columns {
@@ -170,23 +191,26 @@ impl Matrix {
     // -----PUBLIC METHODS-----
 
     /// Gets the value of the matrix at the given indices (0 indexed). Functionally equivalent to Matrix\[row\]\[column\]
-    pub fn get_value(&self, row: usize, column: usize) -> f64 {
+    pub fn get_value(&self, row: usize, column: usize) -> T {
         self.matrix[row][column]
     }
 
     /// Sets the value of the matrix at the given indices (0 indexed)
-    pub fn set_value(&mut self, row: usize, column: usize, value: f64) {
+    pub fn set_value(&mut self, row: usize, column: usize, value: T) {
         self.matrix[row][column] = value;
     }
 
     /// Calculates the reduced echelon form of this matrix, and also returns the determinant (0 if the matrix is non-square)
-    pub fn reduced_echelon_and_det(&self, determinant: &mut f64) -> Matrix {
-        let mut operating_matrix: Vec<Vec<f64>> = self.clone().matrix;
+    pub fn reduced_echelon_and_det(&self, determinant: &mut T) -> Self {
+        let mut operating_matrix: Vec<Vec<T>> = self.clone().matrix;
 
         let mut current_pivot_row: usize = 0;
         let mut current_pivot_column: usize = 0;
-        let mut factor: f64;
-        *determinant = 1.0;
+        let mut factor: T;
+        *determinant = T::from(1.0);
+
+        let negative_one: T = T::from(-1.0);
+        let zero: T = T::from(0.0);
 
         #[allow(clippy::mut_range_bound)]
         while self.rows - current_pivot_row > 0 && self.columns - current_pivot_column > 0 {
@@ -195,11 +219,11 @@ impl Matrix {
             // Find the next pivot
             for column in current_pivot_column..self.columns {
                 for row in current_pivot_row..self.rows {
-                    if operating_matrix[row][column] != 0.0 {
+                    if operating_matrix[row][column] != zero {
                         // Row swap if necessary
                         if current_pivot_row != row {
                             operating_matrix.swap(row, current_pivot_row);
-                            *determinant *= -1.0;
+                            *determinant *= negative_one;
                         }
                         // Update the column
                         current_pivot_column = column;
@@ -226,13 +250,13 @@ impl Matrix {
 
             // Reduce down all rows above and underneath
             for row in 0..self.rows {
-                if operating_matrix[row][current_pivot_column] == 0.0 || row == current_pivot_row {
+                if operating_matrix[row][current_pivot_column] == zero || row == current_pivot_row {
                     continue;
                 }
                 factor = operating_matrix[row][current_pivot_column];
                 for column in current_pivot_column..self.columns {
-                    operating_matrix[row][column] -=
-                        factor * operating_matrix[current_pivot_row][column];
+                    let subtraction_factor: T = operating_matrix[current_pivot_row][column] * factor;
+                    operating_matrix[row][column] -= subtraction_factor;
                 }
             }
 
@@ -243,11 +267,11 @@ impl Matrix {
 
         // Checks if this matrix is square and has so has a determinant, then checks that this matrix is equal to In
         if self.rows != self.columns {
-            *determinant = 0.0;
+            *determinant = zero;
         } else {
             for (i, row) in operating_matrix.iter().enumerate() {
-                if row[i] == 0.0 {
-                    *determinant = 0.0;
+                if row[i] == zero {
+                    *determinant = zero;
                     break;
                 }
             }
@@ -257,43 +281,43 @@ impl Matrix {
     }
 
     /// Calculates and returns the reduced echelon form of this matrix
-    pub fn reduced_echelon_form(&self) -> Matrix {
-        let determinant: &mut f64 = &mut 0.0;
+    pub fn reduced_echelon_form(&self) -> Self {
+        let determinant: &mut T = &mut T::from(0.0);
         self.reduced_echelon_and_det(determinant)
     }
 
     /// Calculates and returns the determinant if this matrix is square
-    pub fn determinant(&self) -> f64 {
+    pub fn determinant(&self) -> T {
         if self.rows != self.columns {
             panic!("This matrix is not square!");
         }
-        let determinant: &mut f64 = &mut 0.0;
+        let determinant: &mut T = &mut T::from(0.0);
         self.reduced_echelon_and_det(determinant);
         *determinant
     }
 
     /// Calculates and returns the inverse of this matrix, if this matrix is invertible
-    pub fn inverse(&self) -> Result<Matrix, &'static str> {
+    pub fn inverse(&self) -> Result<Self, &'static str> {
         if self.rows != self.columns {
             panic!("This matrix is not square!");
         }
 
-        let identity_matrix: Matrix = Matrix::identity_matrix(self.rows);
+        let identity_matrix: Self = Self::identity_matrix(self.rows);
 
-        let reduced_matrix: Matrix = self.combine(&identity_matrix).reduced_echelon_form();
+        let reduced_matrix: Self = self.combine(&identity_matrix).reduced_echelon_form();
 
         if reduced_matrix.partition(0, self.rows, 0, self.columns) != identity_matrix {
             return Err("Matrix is not invertible");
         }
 
-        let inverse_matrix: Matrix =
+        let inverse_matrix: Self =
             reduced_matrix.partition(0, self.rows, self.columns, reduced_matrix.columns);
         Ok(inverse_matrix)
     }
 
     /// Returns a transpose of this matrix
-    pub fn transpose(&self) -> Matrix {
-        let mut transpose_matrix: Matrix = Matrix::new(self.columns, self.rows);
+    pub fn transpose(&self) -> Self {
+        let mut transpose_matrix: Self = Self::new(self.columns, self.rows);
 
         for row in 0..self.rows {
             for column in 0..self.columns {
@@ -305,29 +329,31 @@ impl Matrix {
     }
 
     /// Returns a least squares solution of Ax = b. Uses the ATAx = ATb method.
-    pub fn least_squares_solution(&self, b: Vec<f64>) -> Result<Vec<f64>, &'static str> {
+    pub fn least_squares_solution(&self, b: Vec<T>) -> Result<Vec<T>, &'static str> {
         if b.len() != self.rows {
             panic!("Your b vector is not the correct length!");
         }
 
-        let b_matrix: Matrix = Matrix::matrix_from_list(&b, b.len(), 1);
+        let b_matrix: Self = Self::matrix_from_list(&b, b.len(), 1);
 
-        let a_transpose_a_matrix: Matrix = self.transpose() * self.clone();
-        let a_transpose_b_matrix: Matrix = self.transpose() * b_matrix;
+        let a_transpose_a_matrix: Self = self.transpose() * self.clone();
+        let a_transpose_b_matrix: Self = self.transpose() * b_matrix;
 
-        let solved_matrix: Matrix = a_transpose_a_matrix
+        let solved_matrix: Self = a_transpose_a_matrix
             .combine(&a_transpose_b_matrix)
             .reduced_echelon_form();
 
         let last_column_index: usize = solved_matrix.columns - 1;
+        let zero: T = T::from(0.0);
+        let one: T = T::from(1.0);
         for row_index in 0..solved_matrix.rows {
-            if solved_matrix[row_index][last_column_index] == 0.0 {
+            if solved_matrix[row_index][last_column_index] == zero {
                 continue;
             }
 
             let mut check_passed: bool = false;
             for column_index in 0..last_column_index {
-                if solved_matrix[row_index][column_index] != 0.0 {
+                if solved_matrix[row_index][column_index] != zero {
                     check_passed = true;
                     break;
                 }
@@ -339,15 +365,15 @@ impl Matrix {
         }
 
         // TODO: This could be a helper method
-        let mut x_vector: Vec<f64> = Vec::with_capacity(solved_matrix.columns - 1);
+        let mut x_vector: Vec<T> = Vec::with_capacity(solved_matrix.columns - 1);
         let last_column_index: usize = solved_matrix.columns - 1;
         let mut current_row_index: usize = 0;
         for column_index in 0..last_column_index {
-            if solved_matrix[current_row_index][column_index] == 1.0 {
+            if solved_matrix[current_row_index][column_index] == one {
                 x_vector.push(solved_matrix[current_row_index][last_column_index]);
                 current_row_index += 1;
             } else {
-                x_vector.push(0.0);
+                x_vector.push(zero);
             }
         }
 
@@ -355,24 +381,26 @@ impl Matrix {
     }
 
     /// Returns a solution to the given Ax = b equation, or an error if a solution does not exist
-    pub fn solve(&self, b: Vec<f64>) -> Result<Vec<f64>, &'static str> {
+    pub fn solve(&self, b: Vec<T>) -> Result<Vec<T>, &'static str> {
         if b.len() != self.rows {
             panic!("Your b vector is not the correct length!");
         }
 
-        let b_matrix: Matrix = Matrix::matrix_from_list(&b, b.len(), 1);
+        let b_matrix: Self = Self::matrix_from_list(&b, b.len(), 1);
 
-        let solved_matrix: Matrix = self.combine(&b_matrix).reduced_echelon_form();
+        let solved_matrix: Self = self.combine(&b_matrix).reduced_echelon_form();
 
         let last_column_index: usize = solved_matrix.columns - 1;
+        let zero: T = T::from(0.0);
+        let one: T = T::from(1.0);
         for row_index in 0..solved_matrix.rows {
-            if solved_matrix[row_index][last_column_index] == 0.0 {
+            if solved_matrix[row_index][last_column_index] == zero {
                 continue;
             }
 
             let mut check_passed: bool = false;
             for column_index in 0..last_column_index {
-                if solved_matrix[row_index][column_index] != 0.0 {
+                if solved_matrix[row_index][column_index] != zero {
                     check_passed = true;
                     break;
                 }
@@ -384,29 +412,30 @@ impl Matrix {
         }
 
         // TODO: This could be a helper method
-        let mut x_vector: Vec<f64> = Vec::with_capacity(solved_matrix.columns - 1);
+        let mut x_vector: Vec<T> = Vec::with_capacity(solved_matrix.columns - 1);
         let mut current_row_index: usize = 0;
         for column_index in 0..last_column_index {
-            if solved_matrix[current_row_index][column_index] == 1.0 {
+            if solved_matrix[current_row_index][column_index] == one {
                 x_vector.push(solved_matrix[current_row_index][last_column_index]);
                 current_row_index += 1;
             } else {
-                x_vector.push(0.0);
+                x_vector.push(zero);
             }
         }
 
         Ok(x_vector)
     }
 
-    /// Returns true if these two matrices are equal, within the given delta for float comparisons
-    pub fn equals(&self, other: &Matrix, delta: f64) -> bool {
+    /// Returns true if these two matrices are equal, within the given delta
+    pub fn equals(&self, other: &Self, delta: T) -> bool {
         if self.rows != other.rows || self.columns != other.columns {
             return false;
         }
 
         for row in 0..self.rows {
             for column in 0..self.columns {
-                let difference: f64 = (self[row][column] - other[row][column]).abs();
+                let difference: T =
+                    num_traits::sign::abs_sub(self[row][column], other[row][column]);
                 if difference > delta {
                     return false;
                 }
@@ -417,16 +446,26 @@ impl Matrix {
     }
 }
 
-impl Clone for Matrix {
+impl<T> Clone for Matrix<T>
+where
+    T: num_traits::Num
+        + num_traits::NumAssign
+        + num_traits::NumAssignOps
+        + num_traits::sign::Signed
+        + std::cmp::PartialOrd
+        + ops::Deref
+        + Copy
+        + From<f64>,
+{
     /// Safely clones this matrix
     fn clone(&self) -> Self {
-        let mut matrix: Vec<Vec<f64>> = Vec::with_capacity(self.rows);
+        let mut matrix: Vec<Vec<T>> = Vec::with_capacity(self.rows);
 
         for i in 0..self.rows {
             matrix.push(self.matrix[i].clone());
         }
 
-        Matrix {
+        Self {
             matrix,
             rows: self.rows,
             columns: self.columns,
@@ -434,20 +473,30 @@ impl Clone for Matrix {
     }
 }
 
-impl ops::Add for Matrix {
-    type Output = Matrix;
+impl<T> ops::Add for Matrix<T>
+where
+    T: num_traits::Num
+        + num_traits::NumAssign
+        + num_traits::NumAssignOps
+        + num_traits::sign::Signed
+        + std::cmp::PartialOrd
+        + ops::Deref
+        + Copy
+        + From<f64>,
+{
+    type Output = Self;
 
     /// Adds two matrices together
-    fn add(self, rhs: Matrix) -> Matrix {
+    fn add(self, rhs: Self) -> Self {
         if self.rows != rhs.rows || self.columns != rhs.columns {
             panic!("Matrix size mismatch!");
         }
 
-        let mut output: Matrix = Matrix::new(self.rows, self.columns);
+        let mut output: Self = Self::new(self.rows, self.columns);
 
         for row_index in 0..self.rows {
             for column_index in 0..self.columns {
-                let value: f64 = self[row_index][column_index] + rhs[row_index][column_index];
+                let value: T = self[row_index][column_index] + rhs[row_index][column_index];
                 output.set_value(row_index, column_index, value);
             }
         }
@@ -456,56 +505,96 @@ impl ops::Add for Matrix {
     }
 }
 
-impl ops::AddAssign for Matrix {
+impl<T> ops::AddAssign for Matrix<T>
+where
+    T: num_traits::Num
+        + num_traits::NumAssign
+        + num_traits::NumAssignOps
+        + num_traits::sign::Signed
+        + std::cmp::PartialOrd
+        + ops::Deref
+        + Copy
+        + From<f64>,
+{
     /// Adds and reassigns two matrices together
     fn add_assign(&mut self, rhs: Self) {
         *self = self.clone() + rhs;
     }
 }
 
-impl ops::Sub for Matrix {
-    type Output = Matrix;
+impl<T> ops::Sub for Matrix<T>
+where
+    T: num_traits::Num
+        + num_traits::NumAssign
+        + num_traits::NumAssignOps
+        + num_traits::sign::Signed
+        + std::cmp::PartialOrd
+        + ops::Deref
+        + Copy
+        + From<f64>,
+{
+    type Output = Self;
 
     /// Subtracts the two matrices. Equivalent to self + rhs * -1.0
-    fn sub(self, rhs: Matrix) -> Matrix {
-        let negative_rhs: Matrix = rhs * -1.0;
+    fn sub(self, rhs: Self) -> Self {
+        let negative_rhs: Self = rhs * T::from(-1.0);
         self + negative_rhs
     }
 }
 
-impl ops::SubAssign for Matrix {
+impl<T> ops::SubAssign for Matrix<T>
+where
+    T: num_traits::Num
+        + num_traits::NumAssign
+        + num_traits::NumAssignOps
+        + num_traits::sign::Signed
+        + std::cmp::PartialOrd
+        + ops::Deref
+        + Copy
+        + From<f64>,
+{
     /// Subtracts and assigns matrices
-    fn sub_assign(&mut self, rhs: Matrix) {
+    fn sub_assign(&mut self, rhs: Self) {
         *self = self.clone() - rhs;
     }
 }
 
-impl ops::Mul for Matrix {
-    type Output = Matrix;
+impl<T> ops::Mul for Matrix<T>
+where
+    T: num_traits::Num
+        + num_traits::NumAssign
+        + num_traits::NumAssignOps
+        + num_traits::sign::Signed
+        + std::cmp::PartialOrd
+        + ops::Deref
+        + Copy
+        + From<f64>,
+{
+    type Output = Self;
 
     /// Multiplies two matrices together. Abides by standard matrix multiplication rules
-    fn mul(self, rhs: Matrix) -> Matrix {
+    fn mul(self, rhs: Self) -> Self {
         if self.columns != rhs.rows {
             panic!("Left hand columns must equal right hand rows!");
         }
 
         let common_size: usize = self.columns;
 
-        let mut output: Matrix = Matrix::new(self.rows, rhs.columns);
+        let mut output: Self = Self::new(self.rows, rhs.columns);
 
         for output_row in 0..self.rows {
             for output_column in 0..rhs.columns {
-                let mut a: Vec<f64> = Vec::with_capacity(common_size);
+                let mut a: Vec<T> = Vec::with_capacity(common_size);
                 for i in 0..common_size {
                     a.push(self[output_row][i]);
                 }
 
-                let mut b: Vec<f64> = Vec::with_capacity(common_size);
+                let mut b: Vec<T> = Vec::with_capacity(common_size);
                 for i in 0..common_size {
                     b.push(rhs[i][output_column]);
                 }
 
-                output.set_value(output_row, output_column, Matrix::inner_product(&a, &b));
+                output.set_value(output_row, output_column, Self::inner_product(&a, &b));
             }
         }
 
@@ -513,16 +602,26 @@ impl ops::Mul for Matrix {
     }
 }
 
-impl ops::Mul<f64> for Matrix {
-    type Output = Matrix;
+impl<T> ops::Mul<T> for Matrix<T>
+where
+    T: num_traits::Num
+        + num_traits::NumAssign
+        + num_traits::NumAssignOps
+        + num_traits::sign::Signed
+        + std::cmp::PartialOrd
+        + ops::Deref
+        + Copy
+        + From<f64>,
+{
+    type Output = Self;
 
     /// Scales this matrix by rhs
-    fn mul(self, rhs: f64) -> Matrix {
-        let mut output: Matrix = Matrix::new(self.rows, self.columns);
+    fn mul(self, rhs: T) -> Self {
+        let mut output: Self = Self::new(self.rows, self.columns);
 
         for row_index in 0..self.rows {
             for column_index in 0..self.columns {
-                let value: f64 = self[row_index][column_index] * rhs;
+                let value: T = self[row_index][column_index] * rhs;
                 output.set_value(row_index, column_index, value);
             }
         }
@@ -531,37 +630,81 @@ impl ops::Mul<f64> for Matrix {
     }
 }
 
-impl ops::Mul<Matrix> for f64 {
-    type Output = Matrix;
+/*
+Not entirely sure how to genericize this portion, if it's possible at all
+
+impl ops::Mul<Matrix<f64>> for f64 {
+    type Output = Matrix<f64>;
 
     /// Scales rhs matrix by self
-    fn mul(self, rhs: Matrix) -> Matrix {
+    fn mul(self, rhs: Matrix<f64>) -> Matrix<f64> {
         rhs * self
     }
 }
+*/
 
-impl ops::MulAssign for Matrix {
+impl<T> ops::MulAssign for Matrix<T>
+where
+    T: num_traits::Num
+        + num_traits::NumAssign
+        + num_traits::NumAssignOps
+        + num_traits::sign::Signed
+        + std::cmp::PartialOrd
+        + ops::Deref
+        + Copy
+        + From<f64>,
+{
     /// Multiplies and assigns matrices
     fn mul_assign(&mut self, rhs: Self) {
         *self = self.clone() * rhs;
     }
 }
 
-impl ops::MulAssign<f64> for Matrix {
+impl<T> ops::MulAssign<T> for Matrix<T>
+where
+    T: num_traits::Num
+        + num_traits::NumAssign
+        + num_traits::NumAssignOps
+        + num_traits::sign::Signed
+        + std::cmp::PartialOrd
+        + ops::Deref
+        + Copy
+        + From<f64>,
+{
     /// Scales and assigns this matrix
-    fn mul_assign(&mut self, rhs: f64) {
+    fn mul_assign(&mut self, rhs: T) {
         *self = self.clone() * rhs;
     }
 }
 
-impl cmp::PartialEq for Matrix {
+impl<T> cmp::PartialEq for Matrix<T>
+where
+    T: num_traits::Num
+        + num_traits::NumAssign
+        + num_traits::NumAssignOps
+        + num_traits::sign::Signed
+        + std::cmp::PartialOrd
+        + ops::Deref
+        + Copy
+        + From<f64>,
+{
     fn eq(&self, other: &Self) -> bool {
-        self.equals(other, 0.0)
+        self.equals(other, T::from(0.0))
     }
 }
 
-impl ops::Index<usize> for Matrix {
-    type Output = Vec<f64>;
+impl<T> ops::Index<usize> for Matrix<T>
+where
+    T: num_traits::Num
+        + num_traits::NumAssign
+        + num_traits::NumAssignOps
+        + num_traits::sign::Signed
+        + std::cmp::PartialOrd
+        + ops::Deref
+        + Copy
+        + From<f64>,
+{
+    type Output = Vec<T>;
 
     /// Grabs the indicated row of the matrix. Can then index that row to get a value, ie Matrix\[row\]\[column\]
     fn index(&self, index: usize) -> &Self::Output {
