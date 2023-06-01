@@ -51,58 +51,58 @@ mod tests {
 
     #[test]
     fn square_addition() {
-        let a: Matrix = Matrix::square_matrix_from_list(&STANDARD_MATRIX_A.to_vec());
-        let b: Matrix = Matrix::square_matrix_from_list(&STANDARD_MATRIX_B.to_vec());
+        let a: Matrix<f64> = Matrix::square_matrix_from_list(&STANDARD_MATRIX_A.to_vec());
+        let b: Matrix<f64> = Matrix::square_matrix_from_list(&STANDARD_MATRIX_B.to_vec());
 
         let mut solution_list: Vec<f64> = Vec::with_capacity(9);
         for index in 0..9 {
             solution_list.push(STANDARD_MATRIX_A[index] + STANDARD_MATRIX_B[index]);
         }
-        let solution_matrix: Matrix = Matrix::square_matrix_from_list(&solution_list);
+        let solution_matrix: Matrix<f64> = Matrix::square_matrix_from_list(&solution_list);
         assert!(solution_matrix.equals(&(a + b), COMPARISON_TOLERANCE));
     }
 
     #[test]
     fn square_subtraction() {
-        let a: Matrix = Matrix::square_matrix_from_list(&STANDARD_MATRIX_A.to_vec());
-        let b: Matrix = Matrix::square_matrix_from_list(&STANDARD_MATRIX_B.to_vec());
+        let a: Matrix<f64> = Matrix::square_matrix_from_list(&STANDARD_MATRIX_A.to_vec());
+        let b: Matrix<f64> = Matrix::square_matrix_from_list(&STANDARD_MATRIX_B.to_vec());
 
         let mut solution_list: Vec<f64> = Vec::with_capacity(9);
         for index in 0..9 {
             solution_list.push(STANDARD_MATRIX_A[index] - STANDARD_MATRIX_B[index]);
         }
-        let solution_matrix: Matrix = Matrix::square_matrix_from_list(&solution_list);
+        let solution_matrix: Matrix<f64> = Matrix::square_matrix_from_list(&solution_list);
         assert!(solution_matrix.equals(&(a - b), COMPARISON_TOLERANCE));
     }
 
     #[test]
     fn square_scalar() {
-        let a: Matrix = Matrix::square_matrix_from_list(&STANDARD_MATRIX_A.to_vec());
+        let a: Matrix<f64> = Matrix::square_matrix_from_list(&STANDARD_MATRIX_A.to_vec());
 
         let mut solution_list: Vec<f64> = Vec::with_capacity(9);
         for index in 0..9 {
             solution_list.push(STANDARD_MATRIX_A[index] * 3.7);
         }
-        let solution_matrix: Matrix = Matrix::square_matrix_from_list(&solution_list);
-        assert!(solution_matrix.equals(&(3.7 * a), COMPARISON_TOLERANCE));
+        let solution_matrix: Matrix<f64> = Matrix::square_matrix_from_list(&solution_list);
+        assert!(solution_matrix.equals(&(a * 3.7), COMPARISON_TOLERANCE));
     }
 
     #[test]
     fn square_multiplication() {
-        let a: Matrix = Matrix::square_matrix_from_list(&STANDARD_MATRIX_A.to_vec());
-        let b: Matrix = Matrix::square_matrix_from_list(&STANDARD_MATRIX_B.to_vec());
+        let a: Matrix<f64> = Matrix::square_matrix_from_list(&STANDARD_MATRIX_A.to_vec());
+        let b: Matrix<f64> = Matrix::square_matrix_from_list(&STANDARD_MATRIX_B.to_vec());
 
-        let solution_matrix: Matrix =
+        let solution_matrix: Matrix<f64> =
             Matrix::square_matrix_from_list(&STANDARD_MATRIX_MULTIPLICATION_SOLUTION.to_vec());
         assert!(solution_matrix.equals(&(a * b), COMPARISON_TOLERANCE));
     }
 
     #[test]
     fn square_reverse_multiplication() {
-        let a: Matrix = Matrix::square_matrix_from_list(&STANDARD_MATRIX_A.to_vec());
-        let b: Matrix = Matrix::square_matrix_from_list(&STANDARD_MATRIX_B.to_vec());
+        let a: Matrix<f64> = Matrix::square_matrix_from_list(&STANDARD_MATRIX_A.to_vec());
+        let b: Matrix<f64> = Matrix::square_matrix_from_list(&STANDARD_MATRIX_B.to_vec());
 
-        let solution_matrix: Matrix = Matrix::square_matrix_from_list(
+        let solution_matrix: Matrix<f64> = Matrix::square_matrix_from_list(
             &STANDARD_MATRIX_REVERSE_MULTIPLICATION_SOLUTION.to_vec(),
         );
         assert!(solution_matrix.equals(&(b * a), COMPARISON_TOLERANCE));
@@ -110,23 +110,23 @@ mod tests {
 
     #[test]
     fn a_inverse() {
-        let a: Matrix = Matrix::square_matrix_from_list(&STANDARD_MATRIX_A.to_vec());
+        let a: Matrix<f64> = Matrix::square_matrix_from_list(&STANDARD_MATRIX_A.to_vec());
 
         assert_eq!(a.inverse().unwrap_err(), "Matrix is not invertible");
     }
 
     #[test]
     fn b_inverse() {
-        let b: Matrix = Matrix::square_matrix_from_list(&STANDARD_MATRIX_B.to_vec());
+        let b: Matrix<f64> = Matrix::square_matrix_from_list(&STANDARD_MATRIX_B.to_vec());
 
-        let solution_matrix: Matrix =
+        let solution_matrix: Matrix<f64> =
             Matrix::square_matrix_from_list(&STANDARD_MATRIX_B_INVERSE_SOLUTION.to_vec());
         assert!(solution_matrix.equals(&(b.inverse()).unwrap(), COMPARISON_TOLERANCE));
     }
 
     #[test]
     fn a_determinant() {
-        let a: Matrix = Matrix::square_matrix_from_list(&STANDARD_MATRIX_A.to_vec());
+        let a: Matrix<f64> = Matrix::square_matrix_from_list(&STANDARD_MATRIX_A.to_vec());
 
         let determinant: f64 = a.determinant();
 
@@ -135,7 +135,7 @@ mod tests {
 
     #[test]
     fn b_determinant() {
-        let b: Matrix = Matrix::square_matrix_from_list(&STANDARD_MATRIX_B.to_vec());
+        let b: Matrix<f64> = Matrix::square_matrix_from_list(&STANDARD_MATRIX_B.to_vec());
 
         let determinant: f64 = b.determinant();
 
@@ -144,36 +144,36 @@ mod tests {
 
     #[test]
     fn a_ref() {
-        let a: Matrix = Matrix::square_matrix_from_list(&STANDARD_MATRIX_A.to_vec());
+        let a: Matrix<f64> = Matrix::square_matrix_from_list(&STANDARD_MATRIX_A.to_vec());
 
-        let solution_matrix: Matrix =
+        let solution_matrix: Matrix<f64> =
             Matrix::square_matrix_from_list(&STANDARD_MATRIX_A_REF.to_vec());
         assert!(solution_matrix.equals(&(a.reduced_echelon_form()), COMPARISON_TOLERANCE));
     }
 
     #[test]
     fn b_ref() {
-        let b: Matrix = Matrix::square_matrix_from_list(&STANDARD_MATRIX_B.to_vec());
+        let b: Matrix<f64> = Matrix::square_matrix_from_list(&STANDARD_MATRIX_B.to_vec());
 
-        let solution_matrix: Matrix =
+        let solution_matrix: Matrix<f64> =
             Matrix::square_matrix_from_list(&STANDARD_MATRIX_B_REF.to_vec());
         assert!(solution_matrix.equals(&(b.reduced_echelon_form()), COMPARISON_TOLERANCE));
     }
 
     #[test]
     fn a_transpose() {
-        let a: Matrix = Matrix::square_matrix_from_list(&STANDARD_MATRIX_A.to_vec());
+        let a: Matrix<f64> = Matrix::square_matrix_from_list(&STANDARD_MATRIX_A.to_vec());
 
-        let solution_matrix: Matrix =
+        let solution_matrix: Matrix<f64> =
             Matrix::square_matrix_from_list(&STANDARD_MATRIX_A_TRANSPOSE.to_vec());
         assert!(solution_matrix.equals(&(a.transpose()), COMPARISON_TOLERANCE));
     }
 
     #[test]
     fn b_transpose() {
-        let b: Matrix = Matrix::square_matrix_from_list(&STANDARD_MATRIX_B.to_vec());
+        let b: Matrix<f64> = Matrix::square_matrix_from_list(&STANDARD_MATRIX_B.to_vec());
 
-        let solution_matrix: Matrix =
+        let solution_matrix: Matrix<f64> =
             Matrix::square_matrix_from_list(&STANDARD_MATRIX_B_TRANSPOSE.to_vec());
         assert!(solution_matrix.equals(&(b.transpose()), COMPARISON_TOLERANCE));
     }
@@ -181,14 +181,14 @@ mod tests {
     #[test]
     #[should_panic]
     fn wrong_length_b_vector() {
-        let a: Matrix = Matrix::square_matrix_from_list(&STANDARD_MATRIX_A.to_vec());
+        let a: Matrix<f64> = Matrix::square_matrix_from_list(&STANDARD_MATRIX_A.to_vec());
 
         a.solve(WRONG_LENGTH_B_VECTOR.to_vec());
     }
 
     #[test]
     fn solve_a() {
-        let a: Matrix = Matrix::square_matrix_from_list(&STANDARD_MATRIX_A.to_vec());
+        let a: Matrix<f64> = Matrix::square_matrix_from_list(&STANDARD_MATRIX_A.to_vec());
 
         assert_eq!(
             a.solve(B_VECTOR.to_vec()).unwrap_err(),
@@ -198,7 +198,7 @@ mod tests {
 
     #[test]
     fn solve_b() {
-        let b: Matrix = Matrix::square_matrix_from_list(&STANDARD_MATRIX_B.to_vec());
+        let b: Matrix<f64> = Matrix::square_matrix_from_list(&STANDARD_MATRIX_B.to_vec());
 
         let solution_vector: Vec<f64> = STANDARD_MATRIX_B_SOLUTION.to_vec();
 
@@ -211,7 +211,7 @@ mod tests {
 
     #[test]
     fn least_squares_a() {
-        let a: Matrix = Matrix::square_matrix_from_list(&STANDARD_MATRIX_A.to_vec());
+        let a: Matrix<f64> = Matrix::square_matrix_from_list(&STANDARD_MATRIX_A.to_vec());
 
         assert_eq!(
             a.least_squares_solution(B_VECTOR.to_vec()).unwrap_err(),
@@ -221,7 +221,7 @@ mod tests {
 
     #[test]
     fn least_squares_b() {
-        let b: Matrix = Matrix::square_matrix_from_list(&STANDARD_MATRIX_B.to_vec());
+        let b: Matrix<f64> = Matrix::square_matrix_from_list(&STANDARD_MATRIX_B.to_vec());
 
         let solution_vector: Vec<f64> = STANDARD_MATRIX_B_SOLUTION.to_vec();
 

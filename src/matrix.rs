@@ -15,7 +15,6 @@ where
         + num_traits::NumAssignOps
         + num_traits::sign::Signed
         + std::cmp::PartialOrd
-        + ops::Deref
         + Copy
         + From<f64>,
 {
@@ -26,14 +25,13 @@ where
 
 impl<T> Matrix<T>
 where
-T: num_traits::Num
-    + num_traits::NumAssign
-    + num_traits::NumAssignOps
-    + num_traits::sign::Signed
-    + std::cmp::PartialOrd
-    + ops::Deref
-    + Copy
-    + From<f64>,
+    T: num_traits::Num
+        + num_traits::NumAssign
+        + num_traits::NumAssignOps
+        + num_traits::sign::Signed
+        + std::cmp::PartialOrd
+        + Copy
+        + From<f64>,
 {
     // -----CONSTRUCTORS-----
 
@@ -255,7 +253,8 @@ T: num_traits::Num
                 }
                 factor = operating_matrix[row][current_pivot_column];
                 for column in current_pivot_column..self.columns {
-                    let subtraction_factor: T = operating_matrix[current_pivot_row][column] * factor;
+                    let subtraction_factor: T =
+                        operating_matrix[current_pivot_row][column] * factor;
                     operating_matrix[row][column] -= subtraction_factor;
                 }
             }
@@ -453,7 +452,6 @@ where
         + num_traits::NumAssignOps
         + num_traits::sign::Signed
         + std::cmp::PartialOrd
-        + ops::Deref
         + Copy
         + From<f64>,
 {
@@ -480,7 +478,6 @@ where
         + num_traits::NumAssignOps
         + num_traits::sign::Signed
         + std::cmp::PartialOrd
-        + ops::Deref
         + Copy
         + From<f64>,
 {
@@ -512,7 +509,6 @@ where
         + num_traits::NumAssignOps
         + num_traits::sign::Signed
         + std::cmp::PartialOrd
-        + ops::Deref
         + Copy
         + From<f64>,
 {
@@ -529,7 +525,6 @@ where
         + num_traits::NumAssignOps
         + num_traits::sign::Signed
         + std::cmp::PartialOrd
-        + ops::Deref
         + Copy
         + From<f64>,
 {
@@ -549,7 +544,6 @@ where
         + num_traits::NumAssignOps
         + num_traits::sign::Signed
         + std::cmp::PartialOrd
-        + ops::Deref
         + Copy
         + From<f64>,
 {
@@ -566,7 +560,6 @@ where
         + num_traits::NumAssignOps
         + num_traits::sign::Signed
         + std::cmp::PartialOrd
-        + ops::Deref
         + Copy
         + From<f64>,
 {
@@ -609,7 +602,6 @@ where
         + num_traits::NumAssignOps
         + num_traits::sign::Signed
         + std::cmp::PartialOrd
-        + ops::Deref
         + Copy
         + From<f64>,
 {
@@ -650,7 +642,6 @@ where
         + num_traits::NumAssignOps
         + num_traits::sign::Signed
         + std::cmp::PartialOrd
-        + ops::Deref
         + Copy
         + From<f64>,
 {
@@ -667,7 +658,6 @@ where
         + num_traits::NumAssignOps
         + num_traits::sign::Signed
         + std::cmp::PartialOrd
-        + ops::Deref
         + Copy
         + From<f64>,
 {
@@ -684,7 +674,6 @@ where
         + num_traits::NumAssignOps
         + num_traits::sign::Signed
         + std::cmp::PartialOrd
-        + ops::Deref
         + Copy
         + From<f64>,
 {
@@ -700,7 +689,6 @@ where
         + num_traits::NumAssignOps
         + num_traits::sign::Signed
         + std::cmp::PartialOrd
-        + ops::Deref
         + Copy
         + From<f64>,
 {
