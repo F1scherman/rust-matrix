@@ -6,5 +6,5 @@ This is a simple project that I'm making to try and familiarize myself with the 
 - QR Decomposition
 - QR Algorithm for Eigenvalues
 - Make the class generic for number formats other than f64
-- Create a testing system
+- More detailed tests for current methods
 - More to come...
