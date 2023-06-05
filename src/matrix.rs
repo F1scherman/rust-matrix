@@ -186,6 +186,26 @@ where
         new_matrix
     }
 
+    fn get_x_vector(solved_matrix: Matrix<T>) -> Vec<T> {
+        let last_column_index: usize = solved_matrix.columns - 1;
+        let zero: T = T::from(0.0);
+        let one: T = T::from(1.0);
+
+        let mut x_vector: Vec<T> = Vec::with_capacity(last_column_index);
+        let mut current_row_index: usize = 0;
+
+        for column_index in 0..last_column_index {
+            if solved_matrix[current_row_index][column_index] == one {
+                x_vector.push(solved_matrix[current_row_index][last_column_index]);
+                current_row_index += 1;
+            } else {
+                x_vector.push(zero);
+            }
+        }
+
+        x_vector
+    }
+
     // -----PUBLIC METHODS-----
 
     /// Gets the value of the matrix at the given indices (0 indexed). Functionally equivalent to Matrix\[row\]\[column\]
@@ -344,7 +364,6 @@ where
 
         let last_column_index: usize = solved_matrix.columns - 1;
         let zero: T = T::from(0.0);
-        let one: T = T::from(1.0);
         for row_index in 0..solved_matrix.rows {
             if solved_matrix[row_index][last_column_index] == zero {
                 continue;
@@ -363,20 +382,7 @@ where
             }
         }
 
-        // TODO: This could be a helper method
-        let mut x_vector: Vec<T> = Vec::with_capacity(solved_matrix.columns - 1);
-        let last_column_index: usize = solved_matrix.columns - 1;
-        let mut current_row_index: usize = 0;
-        for column_index in 0..last_column_index {
-            if solved_matrix[current_row_index][column_index] == one {
-                x_vector.push(solved_matrix[current_row_index][last_column_index]);
-                current_row_index += 1;
-            } else {
-                x_vector.push(zero);
-            }
-        }
-
-        Ok(x_vector)
+        Ok(Self::get_x_vector(solved_matrix))
     }
 
     /// Returns a solution to the given Ax = b equation, or an error if a solution does not exist
@@ -391,7 +397,6 @@ where
 
         let last_column_index: usize = solved_matrix.columns - 1;
         let zero: T = T::from(0.0);
-        let one: T = T::from(1.0);
         for row_index in 0..solved_matrix.rows {
             if solved_matrix[row_index][last_column_index] == zero {
                 continue;
@@ -410,19 +415,7 @@ where
             }
         }
 
-        // TODO: This could be a helper method
-        let mut x_vector: Vec<T> = Vec::with_capacity(solved_matrix.columns - 1);
-        let mut current_row_index: usize = 0;
-        for column_index in 0..last_column_index {
-            if solved_matrix[current_row_index][column_index] == one {
-                x_vector.push(solved_matrix[current_row_index][last_column_index]);
-                current_row_index += 1;
-            } else {
-                x_vector.push(zero);
-            }
-        }
-
-        Ok(x_vector)
+        Ok(Self::get_x_vector(solved_matrix))
     }
 
     /// Returns true if these two matrices are equal, within the given delta
