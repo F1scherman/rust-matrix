@@ -1,8 +1,8 @@
-use num_traits;
 /// Brayden Jonsson, 2023
 /// https://github.com/BraydenJonsson/rust-matrix
 ///
 /// Contains a struct and methods for representing a mathematical matrix
+use num_traits;
 use std::cmp;
 use std::ops;
 
