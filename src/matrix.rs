@@ -3,20 +3,25 @@
 ///
 /// Contains a struct and methods for representing a mathematical matrix
 use num_traits;
+use trait_set::trait_set;
 use std::cmp;
 use std::ops;
+
+trait_set! {
+    pub trait MatrixCompatible = num_traits::Num
+    + num_traits::NumAssign
+    + num_traits::NumAssignOps
+    + num_traits::sign::Signed
+    + std::cmp::PartialOrd
+    + Copy
+    + From<f64>;
+}
 
 /// Represents a mathematical matrix, zero-indexed
 #[derive(Debug)]
 pub struct Matrix<T>
 where
-    T: num_traits::Num
-        + num_traits::NumAssign
-        + num_traits::NumAssignOps
-        + num_traits::sign::Signed
-        + std::cmp::PartialOrd
-        + Copy
-        + From<f64>,
+    T: MatrixCompatible
 {
     matrix: Vec<Vec<T>>,
     rows: usize,
@@ -25,13 +30,7 @@ where
 
 impl<T> Matrix<T>
 where
-    T: num_traits::Num
-        + num_traits::NumAssign
-        + num_traits::NumAssignOps
-        + num_traits::sign::Signed
-        + std::cmp::PartialOrd
-        + Copy
-        + From<f64>,
+    T: MatrixCompatible
 {
     // -----CONSTRUCTORS-----
 
@@ -440,13 +439,7 @@ where
 
 impl<T> Clone for Matrix<T>
 where
-    T: num_traits::Num
-        + num_traits::NumAssign
-        + num_traits::NumAssignOps
-        + num_traits::sign::Signed
-        + std::cmp::PartialOrd
-        + Copy
-        + From<f64>,
+    T: MatrixCompatible
 {
     /// Safely clones this matrix
     fn clone(&self) -> Self {
@@ -466,13 +459,7 @@ where
 
 impl<T> ops::Add for Matrix<T>
 where
-    T: num_traits::Num
-        + num_traits::NumAssign
-        + num_traits::NumAssignOps
-        + num_traits::sign::Signed
-        + std::cmp::PartialOrd
-        + Copy
-        + From<f64>,
+    T: MatrixCompatible
 {
     type Output = Self;
 
@@ -497,13 +484,7 @@ where
 
 impl<T> ops::AddAssign for Matrix<T>
 where
-    T: num_traits::Num
-        + num_traits::NumAssign
-        + num_traits::NumAssignOps
-        + num_traits::sign::Signed
-        + std::cmp::PartialOrd
-        + Copy
-        + From<f64>,
+    T: MatrixCompatible
 {
     /// Adds and reassigns two matrices together
     fn add_assign(&mut self, rhs: Self) {
@@ -513,13 +494,7 @@ where
 
 impl<T> ops::Sub for Matrix<T>
 where
-    T: num_traits::Num
-        + num_traits::NumAssign
-        + num_traits::NumAssignOps
-        + num_traits::sign::Signed
-        + std::cmp::PartialOrd
-        + Copy
-        + From<f64>,
+    T: MatrixCompatible
 {
     type Output = Self;
 
@@ -532,13 +507,7 @@ where
 
 impl<T> ops::SubAssign for Matrix<T>
 where
-    T: num_traits::Num
-        + num_traits::NumAssign
-        + num_traits::NumAssignOps
-        + num_traits::sign::Signed
-        + std::cmp::PartialOrd
-        + Copy
-        + From<f64>,
+    T: MatrixCompatible
 {
     /// Subtracts and assigns matrices
     fn sub_assign(&mut self, rhs: Self) {
@@ -548,13 +517,7 @@ where
 
 impl<T> ops::Mul for Matrix<T>
 where
-    T: num_traits::Num
-        + num_traits::NumAssign
-        + num_traits::NumAssignOps
-        + num_traits::sign::Signed
-        + std::cmp::PartialOrd
-        + Copy
-        + From<f64>,
+    T: MatrixCompatible
 {
     type Output = Self;
 
@@ -590,13 +553,7 @@ where
 
 impl<T> ops::Mul<T> for Matrix<T>
 where
-    T: num_traits::Num
-        + num_traits::NumAssign
-        + num_traits::NumAssignOps
-        + num_traits::sign::Signed
-        + std::cmp::PartialOrd
-        + Copy
-        + From<f64>,
+    T: MatrixCompatible
 {
     type Output = Self;
 
@@ -630,13 +587,7 @@ impl ops::Mul<Matrix<f64>> for f64 {
 
 impl<T> ops::MulAssign for Matrix<T>
 where
-    T: num_traits::Num
-        + num_traits::NumAssign
-        + num_traits::NumAssignOps
-        + num_traits::sign::Signed
-        + std::cmp::PartialOrd
-        + Copy
-        + From<f64>,
+    T: MatrixCompatible
 {
     /// Multiplies and assigns matrices
     fn mul_assign(&mut self, rhs: Self) {
@@ -646,13 +597,7 @@ where
 
 impl<T> ops::MulAssign<T> for Matrix<T>
 where
-    T: num_traits::Num
-        + num_traits::NumAssign
-        + num_traits::NumAssignOps
-        + num_traits::sign::Signed
-        + std::cmp::PartialOrd
-        + Copy
-        + From<f64>,
+    T: MatrixCompatible
 {
     /// Scales and assigns this matrix
     fn mul_assign(&mut self, rhs: T) {
@@ -662,13 +607,7 @@ where
 
 impl<T> cmp::PartialEq for Matrix<T>
 where
-    T: num_traits::Num
-        + num_traits::NumAssign
-        + num_traits::NumAssignOps
-        + num_traits::sign::Signed
-        + std::cmp::PartialOrd
-        + Copy
-        + From<f64>,
+    T: MatrixCompatible
 {
     fn eq(&self, other: &Self) -> bool {
         self.equals(other, T::from(0.0))
@@ -677,13 +616,7 @@ where
 
 impl<T> ops::Index<usize> for Matrix<T>
 where
-    T: num_traits::Num
-        + num_traits::NumAssign
-        + num_traits::NumAssignOps
-        + num_traits::sign::Signed
-        + std::cmp::PartialOrd
-        + Copy
-        + From<f64>,
+    T: MatrixCompatible
 {
     type Output = Vec<T>;
 
