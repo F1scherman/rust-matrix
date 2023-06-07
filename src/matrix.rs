@@ -3,25 +3,21 @@
 ///
 /// Contains a struct and methods for representing a mathematical matrix
 use num_traits;
-use trait_set::trait_set;
 use std::cmp;
 use std::ops;
+use trait_set::trait_set;
 
 trait_set! {
-    pub trait MatrixCompatible = num_traits::Num
-    + num_traits::NumAssign
-    + num_traits::NumAssignOps
+    pub trait MatrixCompatible = num_traits::NumAssign
     + num_traits::sign::Signed
-    + std::cmp::PartialOrd
-    + Copy
-    + From<f64>;
+    + Copy;
 }
 
 /// Represents a mathematical matrix, zero-indexed
 #[derive(Debug)]
 pub struct Matrix<T>
 where
-    T: MatrixCompatible
+    T: MatrixCompatible,
 {
     matrix: Vec<Vec<T>>,
     rows: usize,
@@ -30,13 +26,13 @@ where
 
 impl<T> Matrix<T>
 where
-    T: MatrixCompatible
+    T: MatrixCompatible,
 {
     // -----CONSTRUCTORS-----
 
     /// Creates a new zero matrix with the given size parameters
     pub fn new(rows: usize, columns: usize) -> Self {
-        let matrix: Vec<Vec<T>> = vec![vec![T::from(0.0); columns]; rows];
+        let matrix: Vec<Vec<T>> = vec![vec![T::zero(); columns]; rows];
 
         Self {
             matrix,
@@ -75,7 +71,7 @@ where
         let mut matrix: Self = Self::square_matrix(size);
 
         for i in 0..matrix.rows {
-            matrix.set_value(i, i, T::from(1.0));
+            matrix.set_value(i, i, T::one());
         }
 
         matrix
@@ -131,7 +127,7 @@ where
             panic!("These vectors are of different sizes!");
         }
 
-        let mut output: T = T::from(0.0);
+        let mut output: T = T::zero();
 
         for i in 0..a.len() {
             output += a[i] * b[i];
@@ -187,8 +183,8 @@ where
 
     fn get_x_vector(solved_matrix: Matrix<T>) -> Vec<T> {
         let last_column_index: usize = solved_matrix.columns - 1;
-        let zero: T = T::from(0.0);
-        let one: T = T::from(1.0);
+        let zero: T = T::zero();
+        let one: T = T::one();
 
         let mut x_vector: Vec<T> = Vec::with_capacity(last_column_index);
         let mut current_row_index: usize = 0;
@@ -224,10 +220,10 @@ where
         let mut current_pivot_row: usize = 0;
         let mut current_pivot_column: usize = 0;
         let mut factor: T;
-        *determinant = T::from(1.0);
+        *determinant = T::one();
 
-        let negative_one: T = T::from(-1.0);
-        let zero: T = T::from(0.0);
+        let negative_one: T = T::one().neg();
+        let zero: T = T::zero();
 
         #[allow(clippy::mut_range_bound)]
         while self.rows - current_pivot_row > 0 && self.columns - current_pivot_column > 0 {
@@ -300,7 +296,7 @@ where
 
     /// Calculates and returns the reduced echelon form of this matrix
     pub fn reduced_echelon_form(&self) -> Self {
-        let determinant: &mut T = &mut T::from(0.0);
+        let determinant: &mut T = &mut T::zero();
         self.reduced_echelon_and_det(determinant)
     }
 
@@ -309,7 +305,7 @@ where
         if self.rows != self.columns {
             panic!("This matrix is not square!");
         }
-        let determinant: &mut T = &mut T::from(0.0);
+        let determinant: &mut T = &mut T::zero();
         self.reduced_echelon_and_det(determinant);
         *determinant
     }
@@ -362,7 +358,7 @@ where
             .reduced_echelon_form();
 
         let last_column_index: usize = solved_matrix.columns - 1;
-        let zero: T = T::from(0.0);
+        let zero: T = T::zero();
         for row_index in 0..solved_matrix.rows {
             if solved_matrix[row_index][last_column_index] == zero {
                 continue;
@@ -395,7 +391,7 @@ where
         let solved_matrix: Self = self.combine(&b_matrix).reduced_echelon_form();
 
         let last_column_index: usize = solved_matrix.columns - 1;
-        let zero: T = T::from(0.0);
+        let zero: T = T::zero();
         for row_index in 0..solved_matrix.rows {
             if solved_matrix[row_index][last_column_index] == zero {
                 continue;
@@ -427,7 +423,8 @@ where
             for column in 0..self.columns {
                 let difference: T =
                     num_traits::sign::abs_sub(self[row][column], other[row][column]);
-                if difference > delta {
+                // is_positive() should exclude zero, but in my testing it doesn't
+                if (difference - delta).is_positive() && !(difference - delta).is_zero() {
                     return false;
                 }
             }
@@ -439,7 +436,7 @@ where
 
 impl<T> Clone for Matrix<T>
 where
-    T: MatrixCompatible
+    T: MatrixCompatible,
 {
     /// Safely clones this matrix
     fn clone(&self) -> Self {
@@ -459,7 +456,7 @@ where
 
 impl<T> ops::Add for Matrix<T>
 where
-    T: MatrixCompatible
+    T: MatrixCompatible,
 {
     type Output = Self;
 
@@ -484,7 +481,7 @@ where
 
 impl<T> ops::AddAssign for Matrix<T>
 where
-    T: MatrixCompatible
+    T: MatrixCompatible,
 {
     /// Adds and reassigns two matrices together
     fn add_assign(&mut self, rhs: Self) {
@@ -494,20 +491,20 @@ where
 
 impl<T> ops::Sub for Matrix<T>
 where
-    T: MatrixCompatible
+    T: MatrixCompatible,
 {
     type Output = Self;
 
     /// Subtracts the two matrices. Equivalent to self + rhs * -1.0
     fn sub(self, rhs: Self) -> Self {
-        let negative_rhs: Self = rhs * T::from(-1.0);
+        let negative_rhs: Self = rhs * T::one().neg();
         self + negative_rhs
     }
 }
 
 impl<T> ops::SubAssign for Matrix<T>
 where
-    T: MatrixCompatible
+    T: MatrixCompatible,
 {
     /// Subtracts and assigns matrices
     fn sub_assign(&mut self, rhs: Self) {
@@ -517,7 +514,7 @@ where
 
 impl<T> ops::Mul for Matrix<T>
 where
-    T: MatrixCompatible
+    T: MatrixCompatible,
 {
     type Output = Self;
 
@@ -553,7 +550,7 @@ where
 
 impl<T> ops::Mul<T> for Matrix<T>
 where
-    T: MatrixCompatible
+    T: MatrixCompatible,
 {
     type Output = Self;
 
@@ -587,7 +584,7 @@ impl ops::Mul<Matrix<f64>> for f64 {
 
 impl<T> ops::MulAssign for Matrix<T>
 where
-    T: MatrixCompatible
+    T: MatrixCompatible,
 {
     /// Multiplies and assigns matrices
     fn mul_assign(&mut self, rhs: Self) {
@@ -597,7 +594,7 @@ where
 
 impl<T> ops::MulAssign<T> for Matrix<T>
 where
-    T: MatrixCompatible
+    T: MatrixCompatible,
 {
     /// Scales and assigns this matrix
     fn mul_assign(&mut self, rhs: T) {
@@ -607,16 +604,16 @@ where
 
 impl<T> cmp::PartialEq for Matrix<T>
 where
-    T: MatrixCompatible
+    T: MatrixCompatible,
 {
     fn eq(&self, other: &Self) -> bool {
-        self.equals(other, T::from(0.0))
+        self.equals(other, T::zero())
     }
 }
 
 impl<T> ops::Index<usize> for Matrix<T>
 where
-    T: MatrixCompatible
+    T: MatrixCompatible,
 {
     type Output = Vec<T>;
 
