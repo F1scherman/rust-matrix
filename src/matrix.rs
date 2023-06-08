@@ -181,6 +181,7 @@ where
         new_matrix
     }
 
+    /// Returns the x input vector of a solved matrix
     fn get_x_vector(solved_matrix: Matrix<T>) -> Vec<T> {
         let last_column_index: usize = solved_matrix.columns - 1;
         let zero: T = T::zero();
@@ -494,7 +495,7 @@ where
 {
     type Output = Self;
 
-    /// Subtracts the two matrices. Equivalent to self + rhs * -1.0
+    /// Subtracts the two matrices. Equivalent to self + rhs * -1.0 for f64
     fn sub(self, rhs: Self) -> Self {
         let negative_rhs: Self = rhs * T::one().neg();
         self + negative_rhs
