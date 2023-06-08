@@ -213,14 +213,14 @@ where
         self.matrix[row][column] = value;
     }
 
-    /// Calculates the reduced echelon form of this matrix, and also returns the determinant (0 if the matrix is non-square)
-    pub fn reduced_echelon_and_det(&self, determinant: &mut T) -> Self {
+    /// Calculates the reduced echelon form and determinant of this matrix (determinant is an error if the matrix is non-square)
+    pub fn reduced_echelon_and_det(&self) -> (Self, Result<T, &'static str>) {
         let mut operating_matrix: Vec<Vec<T>> = self.clone().matrix;
 
         let mut current_pivot_row: usize = 0;
         let mut current_pivot_column: usize = 0;
         let mut factor: T;
-        *determinant = T::one();
+        let mut determinant: T = T::one();
 
         let negative_one: T = T::one().neg();
         let zero: T = T::zero();
@@ -236,7 +236,7 @@ where
                         // Row swap if necessary
                         if current_pivot_row != row {
                             operating_matrix.swap(row, current_pivot_row);
-                            *determinant *= negative_one;
+                            determinant *= negative_one;
                         }
                         // Update the column
                         current_pivot_column = column;
@@ -259,7 +259,7 @@ where
             for column in current_pivot_column..self.columns {
                 operating_matrix[current_pivot_row][column] /= factor;
             }
-            *determinant *= factor;
+            determinant *= factor;
 
             // Reduce down all rows above and underneath
             for row in 0..self.rows {
@@ -279,25 +279,26 @@ where
             current_pivot_column += 1;
         }
 
+        let mut det_output: Result<T, &'static str>;
         // Checks if this matrix is square and has so has a determinant, then checks that this matrix is equal to In
         if self.rows != self.columns {
-            *determinant = zero;
+            det_output = Err("The matrix was not square");
         } else {
             for (i, row) in operating_matrix.iter().enumerate() {
                 if row[i] == zero {
-                    *determinant = zero;
+                    determinant = zero;
                     break;
                 }
             }
+            det_output = Ok(determinant);
         }
 
-        Self::from_vector(&operating_matrix)
+        (Self::from_vector(&operating_matrix), det_output)
     }
 
     /// Calculates and returns the reduced echelon form of this matrix
     pub fn reduced_echelon_form(&self) -> Self {
-        let determinant: &mut T = &mut T::zero();
-        self.reduced_echelon_and_det(determinant)
+        self.reduced_echelon_and_det().0
     }
 
     /// Calculates and returns the determinant if this matrix is square
@@ -305,9 +306,7 @@ where
         if self.rows != self.columns {
             panic!("This matrix is not square!");
         }
-        let determinant: &mut T = &mut T::zero();
-        self.reduced_echelon_and_det(determinant);
-        *determinant
+        self.reduced_echelon_and_det().1.unwrap()
     }
 
     /// Calculates and returns the inverse of this matrix, if this matrix is invertible
