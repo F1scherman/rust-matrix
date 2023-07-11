@@ -280,7 +280,7 @@ where
             current_pivot_column += 1;
         }
 
-        let mut det_output: Result<T, &'static str>;
+        let det_output: Result<T, &'static str>;
         // Checks if this matrix is square and has so has a determinant, then checks that this matrix is equal to In
         if self.rows != self.columns {
             det_output = Err("The matrix was not square");
