@@ -279,11 +279,7 @@ mod f32tests {
         -4.6218135070778490354,
     ];
 
-    const LEAST_SQUARES_A_SOLUTION: &[f32] = &[
-        -7.45,
-        6.6333333333333332766,
-        0.0,
-    ];
+    const LEAST_SQUARES_A_SOLUTION: &[f32] = &[-7.45, 6.6333333333333332766, 0.0];
 
     #[test]
     fn square_addition() {
