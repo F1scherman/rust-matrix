@@ -7,6 +7,3 @@ This is a simple project that I'm making to try and familiarize myself with the 
 - QR Algorithm for Eigenvalues
 - More detailed tests for current methods
 - More to come...
-
-# In-Progress
-- Make the class generic for number formats other than f64
