@@ -3,6 +3,7 @@
 ///
 /// Contains tests for the matrix library
 mod matrix;
+mod complex;
 
 #[cfg(test)]
 mod f64tests {
@@ -465,5 +466,25 @@ mod f32tests {
         for i in 0..solution_vector.len() {
             assert!((solution_vector[i] - b_solution[i]).abs() < COMPARISON_TOLERANCE);
         }
+    }
+}
+
+mod complextests {
+    use crate::complex::ComplexNumber;
+    #[test]
+    fn create_complex_number() {
+        let mut z: ComplexNumber<f64> = ComplexNumber {
+            real: 5.6,
+            imaginary: 2.5,
+        };
+        println!("{}", z.real);
+        println!("{}", z.imaginary);
+        assert!(z.real == 5.6);
+        assert!(z.imaginary == 2.5);
+        z += ComplexNumber {
+            real: 5.6,
+            imaginary: 2.5,
+        };
+        assert!(z.real == 11.2);
     }
 }
