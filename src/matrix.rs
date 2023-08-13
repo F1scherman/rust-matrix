@@ -3,6 +3,7 @@
 ///
 /// Contains a struct and methods for representing a mathematical matrix
 use num_traits;
+use gen_ops::gen_ops;
 use std::cmp;
 use std::ops;
 use trait_set::trait_set;
@@ -454,153 +455,111 @@ where
     }
 }
 
-impl<T> ops::Add for Matrix<T>
-where
-    T: MatrixCompatible,
-{
-    type Output = Self;
+gen_ops!(
+    <T>;
+    types Matrix<T>, Matrix<T> => Matrix<T>;
 
-    /// Adds two matrices together
-    fn add(self, rhs: Self) -> Self {
-        if self.rows != rhs.rows || self.columns != rhs.columns {
+    /// Adds two matrices
+    for + call |a: &Matrix<T>, b: &Matrix<T>| {
+        if a.rows != b.rows || a.columns != b.columns {
             panic!("Matrix size mismatch!");
         }
 
-        let mut output: Self = Self::new(self.rows, self.columns);
+        let mut output: Self = Self::new(a.rows, a.columns);
 
-        for row_index in 0..self.rows {
-            for column_index in 0..self.columns {
-                let value: T = self[row_index][column_index] + rhs[row_index][column_index];
+        for row_index in 0..a.rows {
+            for column_index in 0..a.columns {
+                let value: T = a[row_index][column_index] + b[row_index][column_index];
                 output.set_value(row_index, column_index, value);
             }
         }
 
         output
-    }
-}
+    };
 
-impl<T> ops::AddAssign for Matrix<T>
-where
-    T: MatrixCompatible,
-{
-    /// Adds and reassigns two matrices together
-    fn add_assign(&mut self, rhs: Self) {
-        *self = self.clone() + rhs;
-    }
-}
+    /// Subtracts two matrices. Multiplies the right matrix by -1, adds those matrices.
+    for - call |a: &Matrix<T>, b: &Matrix<T>| {
+        let negative_rhs: Matrix<T> = b.clone() * T::one().neg();
+        a.clone() + negative_rhs
+    };
 
-impl<T> ops::Sub for Matrix<T>
-where
-    T: MatrixCompatible,
-{
-    type Output = Self;
-
-    /// Subtracts the two matrices. Equivalent to self + rhs * -1.0 for f64
-    fn sub(self, rhs: Self) -> Self {
-        let negative_rhs: Self = rhs * T::one().neg();
-        self + negative_rhs
-    }
-}
-
-impl<T> ops::SubAssign for Matrix<T>
-where
-    T: MatrixCompatible,
-{
-    /// Subtracts and assigns matrices
-    fn sub_assign(&mut self, rhs: Self) {
-        *self = self.clone() - rhs;
-    }
-}
-
-impl<T> ops::Mul for Matrix<T>
-where
-    T: MatrixCompatible,
-{
-    type Output = Self;
-
-    /// Multiplies two matrices together. Abides by standard matrix multiplication rules
-    fn mul(self, rhs: Self) -> Self {
-        if self.columns != rhs.rows {
+    /// Multiplies two matrices
+    for * call |a: &Matrix<T>, b: &Matrix<T>| {
+        if a.columns != b.rows {
             panic!("Left hand columns must equal right hand rows!");
         }
 
-        let common_size: usize = self.columns;
+        let common_size: usize = a.columns;
 
-        let mut output: Self = Self::new(self.rows, rhs.columns);
+        let mut output: Matrix<T> = Matrix::new(a.rows, b.columns);
 
-        for output_row in 0..self.rows {
-            for output_column in 0..rhs.columns {
-                let mut a: Vec<T> = Vec::with_capacity(common_size);
+        for output_row in 0..a.rows {
+            for output_column in 0..b.columns {
+                let mut a_row: Vec<T> = Vec::with_capacity(common_size);
                 for i in 0..common_size {
-                    a.push(self[output_row][i]);
+                    a_row.push(a[output_row][i]);
                 }
 
-                let mut b: Vec<T> = Vec::with_capacity(common_size);
+                let mut b_row: Vec<T> = Vec::with_capacity(common_size);
                 for i in 0..common_size {
-                    b.push(rhs[i][output_column]);
+                    b_row.push(b[i][output_column]);
                 }
 
-                output.set_value(output_row, output_column, Self::inner_product(&a, &b));
+                output.set_value(output_row, output_column, Matrix::inner_product(&a_row, &b_row));
             }
         }
 
         output
-    }
-}
+    };
 
-impl<T> ops::Mul<T> for Matrix<T>
-where
-    T: MatrixCompatible,
-{
-    type Output = Self;
+    where T: MatrixCompatible
+);
 
-    /// Scales this matrix by rhs
-    fn mul(self, rhs: T) -> Self {
-        let mut output: Self = Self::new(self.rows, self.columns);
+gen_ops!(
+    <T>;
+    types Matrix<T>, Matrix<T>;
 
-        for row_index in 0..self.rows {
-            for column_index in 0..self.columns {
-                let value: T = self[row_index][column_index] * rhs;
+    /// Add-assigns a matrix
+    for += call |a: &mut Matrix<T>, b: &Matrix<T>| {*a = a.clone() + b.clone()};
+
+    /// Sub-assigns a matrix
+    for -= call |a: &mut Matrix<T>, b: &Matrix<T>| {*a = a.clone() - b.clone()};
+
+    /// Mul-assigns a matrix
+    for *= call |a: &mut Matrix<T>, b: &Matrix<T>| {*a = a.clone() * b.clone()};
+
+    where T: MatrixCompatible
+);
+
+gen_ops!(
+    <T>;
+    types Matrix<T>, T => Matrix<T>;
+
+    for * call |a: &Matrix<T>, scalar: &T| {
+        let mut output: Matrix<T> = Matrix::new(a.rows, a.columns);
+
+        for row_index in 0..a.rows {
+            for column_index in 0..a.columns {
+                let value: T = a[row_index][column_index] * *scalar;
                 output.set_value(row_index, column_index, value);
             }
         }
 
         output
-    }
-}
+    };
 
-/*
-Not entirely sure how to genericize this portion, if it's possible at all
+    where T: MatrixCompatible
+);
 
-impl ops::Mul<Matrix<f64>> for f64 {
-    type Output = Matrix<f64>;
+gen_ops!(
+    <T>;
+    types Matrix<T>, T;
 
-    /// Scales rhs matrix by self
-    fn mul(self, rhs: Matrix<f64>) -> Matrix<f64> {
-        rhs * self
-    }
-}
-*/
+    /// Scale-assigns a matrix
+    for *= call |a: &mut Matrix<T>, b: &T| {*a = a.clone() * *b};
 
-impl<T> ops::MulAssign for Matrix<T>
-where
-    T: MatrixCompatible,
-{
-    /// Multiplies and assigns matrices
-    fn mul_assign(&mut self, rhs: Self) {
-        *self = self.clone() * rhs;
-    }
-}
-
-impl<T> ops::MulAssign<T> for Matrix<T>
-where
-    T: MatrixCompatible,
-{
-    /// Scales and assigns this matrix
-    fn mul_assign(&mut self, rhs: T) {
-        *self = self.clone() * rhs;
-    }
-}
+    where T: MatrixCompatible
+);
 
 impl<T> cmp::PartialEq for Matrix<T>
 where
