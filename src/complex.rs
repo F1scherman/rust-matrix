@@ -99,19 +99,11 @@ gen_ops!(
     ///
     /// Returns a complex number
     for * call |vector: &ComplexNumber<T>, scalar:&T| ComplexNumber {real: vector.real * *scalar, imaginary: vector.imaginary * *scalar};
-    
-    where T: ComplexCompatible
-);
-
-gen_ops!(
-    <T>;
-    types ComplexNumber<T>, T => ComplexNumber<T>;
 
     /// Scales a complex number
     ///
     /// Returns a complex number
     for / call |vector: &ComplexNumber<T>, scalar:&T| ComplexNumber {real: vector.real / *scalar, imaginary: vector.imaginary / *scalar};
-
     where T: ComplexCompatible
 );
 
