@@ -487,4 +487,33 @@ mod complextests {
         };
         assert!(z.real == 11.2);
     }
+
+    #[test]
+    fn complex_number_arithmetic() {
+        let z1: ComplexNumber<f64> = ComplexNumber {
+            real: 5.6,
+            imaginary: 2.5,
+        };
+        let z2: ComplexNumber<f64> = ComplexNumber {
+            real: -12.1,
+            imaginary: 4.8,
+        };
+
+        let addition: ComplexNumber<f64> = z1 + z2;
+        let subtraction: ComplexNumber<f64> = z1 - z2;
+        let multiplication: ComplexNumber<f64> = z1 * z2;
+        let division: ComplexNumber<f64> = z1 / z2;
+
+        assert!(addition.real == -6.5);
+        assert!(addition.imaginary == 7.3);
+
+        assert!(subtraction.real == 17.7);
+        assert!(subtraction.imaginary == -2.3);
+
+        assert!(multiplication.real == -79.759999999999991);
+        assert!(multiplication.imaginary == -3.3700000000000010);
+
+        assert!(division.real == -0.32906462083210386);
+        assert!(division.imaginary == -0.33714960165240482);
+    }
 }
