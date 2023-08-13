@@ -1,17 +1,47 @@
+use bigdecimal::BigDecimal;
 /// Brayden Jonsson, 2023
 /// https://github.com/BraydenJonsson/rust-matrix
 ///
 /// Contains a struct and methods for representing a complex number
 use gen_ops::gen_ops;
+use num_traits::Num;
+use num_traits::NumOps;
 use num_traits::One;
+use num_traits::Signed;
 use num_traits::Zero;
-use trait_set::trait_set;
 use std::cmp;
+use std::ops::Neg;
+use std::ops::Rem;
+use trait_set::trait_set;
+
+pub trait ComplexFunctions {
+    // required
+    fn sqrt(self) -> Self;
+}
+
+impl ComplexFunctions for f64 {
+    fn sqrt(self) -> Self {
+        self.sqrt()
+    }
+}
+
+impl ComplexFunctions for f32 {
+    fn sqrt(self) -> Self {
+        self.sqrt()
+    }
+}
+
+impl ComplexFunctions for BigDecimal {
+    fn sqrt(self) -> Self {
+        BigDecimal::sqrt(&self).unwrap()
+    }
+}
 
 trait_set! {
     pub trait ComplexCompatible = num_traits::NumAssign
     + num_traits::sign::Signed
-    + Copy;
+    + Copy
+    + ComplexFunctions;
 }
 
 /// Represents a complex number
@@ -28,11 +58,36 @@ impl<T> ComplexNumber<T>
 where
     T: ComplexCompatible,
 {
+    // -------- CONSTRUCTORS ------------
+    /// Returns a new Complex Number set to 0
+    pub fn new() -> Self {
+        Self {
+            real: T::zero(),
+            imaginary: T::zero(),
+        }
+    }
+
+    /// Returns a Complex Number where the imaginary part is set to 1 and the real part is 0,
+    /// meaning this number is equal to i
+    pub fn i() -> Self {
+        Self {
+            real: T::zero(),
+            imaginary: T::one(),
+        }
+    }
+
+    // -------- PUBLIC METHODS ------------
+    /// Returns the conjugate of this Complex Number
     pub fn conjugate(&self) -> Self {
         Self {
             real: self.real,
             imaginary: self.imaginary.neg(),
         }
+    }
+
+    /// Returns the magnitude of this Complex Number (treated as a vector)
+    pub fn magnitude(&self) -> T {
+        (self.real * self.real + self.imaginary * self.imaginary).sqrt()
     }
 }
 
@@ -64,6 +119,79 @@ where
     }
 }
 
+impl<T> Num for ComplexNumber<T> where T: ComplexCompatible {
+    type FromStrRadixErr = T::FromStrRadixErr;
+
+    /// Only works on the real portion
+    fn from_str_radix(str: &str, radix: u32) -> Result<Self, Self::FromStrRadixErr> {
+        let result: Result<T, <T as Num>::FromStrRadixErr> = T::from_str_radix(str, radix);
+        let output: Result<ComplexNumber<T>, <T as Num>::FromStrRadixErr>;
+
+        if result.is_ok() {
+            output = Ok(ComplexNumber {
+                real: result.ok().unwrap(),
+                imaginary: T::zero(),
+            });
+        }
+        else {
+            output = Err(result.err().unwrap());
+        }
+
+        output
+    }
+}
+
+impl<T> Neg for ComplexNumber<T> where T: ComplexCompatible {
+    type Output = ComplexNumber<T>;
+
+    fn neg(self) -> ComplexNumber<T> {
+        ComplexNumber {
+            real: self.real.neg(),
+            imaginary: self.imaginary.neg(),
+        }
+    }
+}
+
+impl<T> Signed for ComplexNumber<T> where T: ComplexCompatible {
+    /// Equal to the magnitude/distance from the origin
+    fn abs(&self) -> ComplexNumber<T> {
+        ComplexNumber {
+            real: self.magnitude(),
+            imaginary: T::zero()
+        }
+    }
+
+    /// Compares magnitudes
+    fn abs_sub(&self, other: &Self) -> ComplexNumber<T> {
+        let a: ComplexNumber<T> = ComplexNumber {
+            real: self.magnitude(),
+            imaginary: T::zero()
+        };
+
+        let b: ComplexNumber<T> = ComplexNumber {
+            real: other.magnitude(),
+            imaginary: T::zero()
+        };
+
+        a - b
+    }
+
+    /// Equal to z/abs(z)
+    fn signum(&self) -> Self {
+        *self / self.abs()
+    }
+
+    /// Works only based on the real portion
+    fn is_positive(&self) -> bool {
+        self.real.is_positive()
+    }
+
+    /// Works only based on the real portion
+    fn is_negative(&self) -> bool {
+        self.real.is_negative()
+    }
+}
+
 gen_ops!(
     <T>;
     types ComplexNumber<T>, ComplexNumber<T> => ComplexNumber<T>;
@@ -88,6 +216,13 @@ gen_ops!(
     /// Returns a complex number
     for / call |a: &ComplexNumber<T>, b: &ComplexNumber<T>| (*a * b.conjugate()) / (b.real * b.real + b.imaginary * b.imaginary);
 
+    /// Find the remainder of two complex numbers
+    ///
+    /// This isn't well defined, we just take the % modulus during the final step of scaling by 1/(c^2+d^2) for (a+bi)/(c+di)
+    ///
+    /// Returns a complex number
+    for % call |a: &ComplexNumber<T>, b: &ComplexNumber<T>| (*a * b.conjugate()) % (b.real * b.real + b.imaginary * b.imaginary);
+
     where T: ComplexCompatible
 );
 
@@ -104,6 +239,11 @@ gen_ops!(
     ///
     /// Returns a complex number
     for / call |vector: &ComplexNumber<T>, scalar:&T| ComplexNumber {real: vector.real / *scalar, imaginary: vector.imaginary / *scalar};
+
+    /// This applies the modulus operator to both parts of the number simulataneously
+    ///
+    /// Returns a complex number
+    for % call |vector: &ComplexNumber<T>, scalar:&T| ComplexNumber {real: vector.real % *scalar, imaginary: vector.imaginary % *scalar};
     where T: ComplexCompatible
 );
 
@@ -136,7 +276,10 @@ gen_ops!(
     where T: ComplexCompatible
 );
 
-impl<T> cmp::PartialEq for ComplexNumber<T> where T: ComplexCompatible {
+impl<T> cmp::PartialEq for ComplexNumber<T>
+where
+    T: ComplexCompatible,
+{
     /// Check if two complex numbers are equal
     ///
     /// Returns boolean
@@ -145,8 +288,14 @@ impl<T> cmp::PartialEq for ComplexNumber<T> where T: ComplexCompatible {
     }
 }
 
-impl<T> Clone for ComplexNumber<T> where T: ComplexCompatible {
+impl<T> Clone for ComplexNumber<T>
+where
+    T: ComplexCompatible,
+{
     fn clone(&self) -> Self {
-        Self { real: self.real.clone(), imaginary: self.imaginary.clone() }
+        Self {
+            real: self.real.clone(),
+            imaginary: self.imaginary.clone(),
+        }
     }
 }
