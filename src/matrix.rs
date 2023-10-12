@@ -48,7 +48,7 @@ impl<T> Matrix<T>
     }
 
     /// Creates a new matrix from the given 2D vector array. The array must have consistent rectangular sizing
-    pub fn from_vector(vector: &Vec<Vec<T>>) -> Self {
+    pub fn from_vector(vector: Vec<Vec<T>>) -> Self {
         let rows: usize = vector.capacity();
         let columns: usize = vector[0].capacity();
 
@@ -80,29 +80,19 @@ impl<T> Matrix<T>
 
     /// Constructs a new square matrix from the given list of numbers, listed left-to-right, up-to-down.
     /// The length of the list must be a perfect square.
-    pub fn square_matrix_from_list(list_of_numbers: &Vec<T>) -> Self {
+    pub fn square_matrix_from_list(list_of_numbers: &[T]) -> Self {
         let list_length: f64 = list_of_numbers.len() as f64;
         if f64::sqrt(list_length).fract() != 0.0 {
             panic!("This list size is not a perfect square!");
         }
 
         let matrix_size: usize = f64::sqrt(list_length) as usize;
-        let mut matrix: Self = Self::square_matrix(matrix_size);
-        let mut list_index: usize = 0;
-
-        for row_index in 0..matrix_size {
-            for column_index in 0..matrix_size {
-                matrix.set_value(row_index, column_index, list_of_numbers[list_index]);
-                list_index += 1;
-            }
-        }
-
-        matrix
+        Self::matrix_from_list(list_of_numbers, matrix_size, matrix_size)
     }
 
     /// Constructs a new matrix from the given list of numbers, listed left-to-right, up-to-down.
     /// The length of the list must be match the dimensions
-    pub fn matrix_from_list(list_of_numbers: &Vec<T>, rows: usize, columns: usize) -> Self {
+    pub fn matrix_from_list(list_of_numbers: &[T], rows: usize, columns: usize) -> Self {
         if list_of_numbers.len() != rows * columns {
             panic!("This list size does not match the dimensions!");
         }
@@ -295,7 +285,7 @@ impl<T> Matrix<T>
             det_output = Ok(determinant);
         }
 
-        (Self::from_vector(&operating_matrix), det_output)
+        (Self::from_vector(operating_matrix), det_output)
     }
 
     /// Calculates and returns the reduced echelon form of this matrix
