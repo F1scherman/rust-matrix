@@ -52,7 +52,7 @@ impl<T> Matrix<T>
         let rows: usize = vector.capacity();
         let columns: usize = vector[0].capacity();
 
-        for row in vector {
+        for row in &vector {
             if columns != row.capacity() {
                 panic!("This matrix doesn't have equal column sizes!")
             }
