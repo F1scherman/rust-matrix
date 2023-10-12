@@ -334,7 +334,7 @@ impl<T> Matrix<T>
     }
 
     /// Returns a least squares solution of Ax = b. Uses the ATAx = ATb method.
-    pub fn least_squares_solution(&self, b: Vec<T>) -> Result<Vec<T>, &'static str> {
+    pub fn least_squares_solution(&self, b: &[T]) -> Result<Vec<T>, &'static str> {
         if b.len() != self.rows {
             panic!("Your b vector is not the correct length!");
         }
@@ -372,7 +372,7 @@ impl<T> Matrix<T>
     }
 
     /// Returns a solution to the given Ax = b equation, or an error if a solution does not exist
-    pub fn solve(&self, b: Vec<T>) -> Result<Vec<T>, &'static str> {
+    pub fn solve(&self, b: &[T]) -> Result<Vec<T>, &'static str> {
         if b.len() != self.rows {
             panic!("Your b vector is not the correct length!");
         }
