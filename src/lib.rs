@@ -8,9 +8,8 @@ mod complex;
 #[cfg(test)]
 mod f64tests {
     use crate::matrix::Matrix;
-
     const COMPARISON_TOLERANCE: f64 = 0.000000001;
-    const STANDARD_MATRIX_B: &[f64] = &[5.7, 1.2, 0.0, 4.9, -7.1, -2.1, 77.1, 0.0, 9.1];
+
     // These matrices were calculated using reshish.com
     const STANDARD_MATRIX_MULTIPLICATION_SOLUTION: &[f64] =
         &[246.8, -13.0, 23.1, 509.9, -30.7, 44.1, 773.0, -48.4, 65.1];
@@ -52,13 +51,14 @@ mod f64tests {
     #[test]
     fn square_addition() {
         let a_array : [f64;9] = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0];
+        let b_array : [f64;9] = [5.7, 1.2, 0.0, 4.9, -7.1, -2.1, 77.1, 0.0, 9.1];
 
-        let a: Matrix<f64> = Matrix::square_matrix_from_list(&a_array.to_vec());
-        let b: Matrix<f64> = Matrix::square_matrix_from_list(&STANDARD_MATRIX_B.to_vec());
+        let a: Matrix<f64> = Matrix::square_matrix_from_list(&a_array);
+        let b: Matrix<f64> = Matrix::square_matrix_from_list(&b_array);
 
         let mut solution_list: Vec<f64> = Vec::with_capacity(9);
         for index in 0..9 {
-            solution_list.push(a_array[index] + STANDARD_MATRIX_B[index]);
+            solution_list.push(a_array[index] + b_array[index]);
         }
         let solution_matrix: Matrix<f64> = Matrix::square_matrix_from_list(&solution_list);
         assert!(solution_matrix.equals(&(a + b), COMPARISON_TOLERANCE));
@@ -67,13 +67,14 @@ mod f64tests {
     #[test]
     fn square_subtraction() {
         let a_array : [f64;9] = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0];
+        let b_array : [f64;9] = [5.7, 1.2, 0.0, 4.9, -7.1, -2.1, 77.1, 0.0, 9.1];
 
-        let a: Matrix<f64> = Matrix::square_matrix_from_list(&a_array.to_vec());
-        let b: Matrix<f64> = Matrix::square_matrix_from_list(&STANDARD_MATRIX_B.to_vec());
+        let a: Matrix<f64> = Matrix::square_matrix_from_list(&a_array);
+        let b: Matrix<f64> = Matrix::square_matrix_from_list(&b_array);
 
         let mut solution_list: Vec<f64> = Vec::with_capacity(9);
         for index in 0..9 {
-            solution_list.push(a_array[index] - STANDARD_MATRIX_B[index]);
+            solution_list.push(a_array[index] - b_array[index]);
         }
         let solution_matrix: Matrix<f64> = Matrix::square_matrix_from_list(&solution_list);
         assert!(solution_matrix.equals(&(a - b), COMPARISON_TOLERANCE));
@@ -81,39 +82,41 @@ mod f64tests {
 
     #[test]
     fn square_scalar() {
-        let a_array : [f64;9] = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0];
+        let matrix_array : [f64;9] = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0];
 
-        let a: Matrix<f64> = Matrix::square_matrix_from_list(&a_array.to_vec());
+        let matrix: Matrix<f64> = Matrix::square_matrix_from_list(&matrix_array.to_vec());
 
         let mut solution_list: Vec<f64> = Vec::with_capacity(9);
         for index in 0..9 {
-            solution_list.push(a_array[index] * 3.7);
+            solution_list.push(matrix_array[index] * 3.7);
         }
         let solution_matrix: Matrix<f64> = Matrix::square_matrix_from_list(&solution_list);
-        assert!(solution_matrix.equals(&(a * 3.7), COMPARISON_TOLERANCE));
+        assert!(solution_matrix.equals(&(matrix * 3.7), COMPARISON_TOLERANCE));
     }
 
     #[test]
     fn square_multiplication() {
         let a_array : [f64;9] = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0];
+        let b_array : [f64;9] = [5.7, 1.2, 0.0, 4.9, -7.1, -2.1, 77.1, 0.0, 9.1];
 
-        let a: Matrix<f64> = Matrix::square_matrix_from_list(&a_array.to_vec());
-        let b: Matrix<f64> = Matrix::square_matrix_from_list(&STANDARD_MATRIX_B.to_vec());
+        let a: Matrix<f64> = Matrix::square_matrix_from_list(&a_array);
+        let b: Matrix<f64> = Matrix::square_matrix_from_list(&b_array);
 
         let solution_matrix: Matrix<f64> =
-            Matrix::square_matrix_from_list(&STANDARD_MATRIX_MULTIPLICATION_SOLUTION.to_vec());
+            Matrix::square_matrix_from_list(&STANDARD_MATRIX_MULTIPLICATION_SOLUTION);
         assert!(solution_matrix.equals(&(a * b), COMPARISON_TOLERANCE));
     }
 
     #[test]
     fn square_reverse_multiplication() {
         let a_array : [f64;9] = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0];
+        let b_array : [f64;9] = [5.7, 1.2, 0.0, 4.9, -7.1, -2.1, 77.1, 0.0, 9.1];
 
-        let a: Matrix<f64> = Matrix::square_matrix_from_list(&a_array.to_vec());
-        let b: Matrix<f64> = Matrix::square_matrix_from_list(&STANDARD_MATRIX_B.to_vec());
+        let a: Matrix<f64> = Matrix::square_matrix_from_list(&a_array);
+        let b: Matrix<f64> = Matrix::square_matrix_from_list(&b_array);
 
         let solution_matrix: Matrix<f64> = Matrix::square_matrix_from_list(
-            &STANDARD_MATRIX_REVERSE_MULTIPLICATION_SOLUTION.to_vec(),
+            &STANDARD_MATRIX_REVERSE_MULTIPLICATION_SOLUTION,
         );
         assert!(solution_matrix.equals(&(b * a), COMPARISON_TOLERANCE));
     }
@@ -129,38 +132,36 @@ mod f64tests {
 
     #[test]
     fn inverse_2() {
-        let b: Matrix<f64> = Matrix::square_matrix_from_list(&STANDARD_MATRIX_B.to_vec());
+        let matrix_array : [f64;9] = [5.7, 1.2, 0.0, 4.9, -7.1, -2.1, 77.1, 0.0, 9.1];
+        let matrix: Matrix<f64> = Matrix::square_matrix_from_list(&matrix_array);
 
         let solution_matrix: Matrix<f64> =
             Matrix::square_matrix_from_list(&STANDARD_MATRIX_B_INVERSE_SOLUTION.to_vec());
-        assert!(solution_matrix.equals(&(b.inverse()).unwrap(), COMPARISON_TOLERANCE));
+        assert!(solution_matrix.equals(&(matrix.inverse()).unwrap(), COMPARISON_TOLERANCE));
     }
 
     #[test]
     fn determinant_1() {
-        let a_array : [f64;9] = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0];
+        let matrix_array : [f64;9] = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0];
+        let matrix: Matrix<f64> = Matrix::square_matrix_from_list(&matrix_array);
 
-        let a: Matrix<f64> = Matrix::square_matrix_from_list(&a_array.to_vec());
-
-        let determinant: f64 = a.determinant();
-
+        let determinant: f64 = matrix.determinant();
         assert!((determinant - STANDARD_MATRIX_A_DETERMINANT).abs() < COMPARISON_TOLERANCE);
     }
 
     #[test]
     fn determinant_2() {
-        let b: Matrix<f64> = Matrix::square_matrix_from_list(&STANDARD_MATRIX_B.to_vec());
+        let matrix_array : [f64;9] = [5.7, 1.2, 0.0, 4.9, -7.1, -2.1, 77.1, 0.0, 9.1];
+        let matrix: Matrix<f64> = Matrix::square_matrix_from_list(&matrix_array);
 
-        let determinant: f64 = b.determinant();
-
+        let determinant: f64 = matrix.determinant();
         assert!((determinant - STANDARD_MATRIX_B_DETERMINANT).abs() < COMPARISON_TOLERANCE);
     }
 
     #[test]
     fn ref_1() {
         let matrix_array : [f64;9] = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0];
-
-        let matrix: Matrix<f64> = Matrix::square_matrix_from_list(&matrix_array.to_vec());
+        let matrix: Matrix<f64> = Matrix::square_matrix_from_list(&matrix_array);
 
         let solution_matrix: Matrix<f64> =
             Matrix::square_matrix_from_list(&STANDARD_MATRIX_A_REF.to_vec());
@@ -169,18 +170,19 @@ mod f64tests {
 
     #[test]
     fn ref_2() {
-        let b: Matrix<f64> = Matrix::square_matrix_from_list(&STANDARD_MATRIX_B.to_vec());
+        let matrix_array : [f64;9] = [5.7, 1.2, 0.0, 4.9, -7.1, -2.1, 77.1, 0.0, 9.1];
+        let matrix: Matrix<f64> = Matrix::square_matrix_from_list(&matrix_array);
 
         let solution_matrix: Matrix<f64> =
             Matrix::square_matrix_from_list(&STANDARD_MATRIX_B_REF.to_vec());
-        assert!(solution_matrix.equals(&(b.reduced_echelon_form()), COMPARISON_TOLERANCE));
+        assert!(solution_matrix.equals(&(matrix.reduced_echelon_form()), COMPARISON_TOLERANCE));
     }
 
     #[test]
     fn transpose_1() {
         let matrix_array : [f64;9] = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0];
 
-        let matrix: Matrix<f64> = Matrix::square_matrix_from_list(&matrix_array.to_vec());
+        let matrix: Matrix<f64> = Matrix::square_matrix_from_list(&matrix_array);
 
         let solution_matrix: Matrix<f64> =
             Matrix::square_matrix_from_list(&STANDARD_MATRIX_A_TRANSPOSE.to_vec());
@@ -189,11 +191,12 @@ mod f64tests {
 
     #[test]
     fn transpose_2() {
-        let b: Matrix<f64> = Matrix::square_matrix_from_list(&STANDARD_MATRIX_B.to_vec());
+        let matrix_array : [f64;9] = [5.7, 1.2, 0.0, 4.9, -7.1, -2.1, 77.1, 0.0, 9.1];
+        let matrix: Matrix<f64> = Matrix::square_matrix_from_list(&matrix_array);
 
         let solution_matrix: Matrix<f64> =
             Matrix::square_matrix_from_list(&STANDARD_MATRIX_B_TRANSPOSE.to_vec());
-        assert!(solution_matrix.equals(&(b.transpose()), COMPARISON_TOLERANCE));
+        assert!(solution_matrix.equals(&(matrix.transpose()), COMPARISON_TOLERANCE));
     }
 
     #[test]
@@ -203,7 +206,7 @@ mod f64tests {
 
         let matrix: Matrix<f64> = Matrix::square_matrix_from_list(&matrix_array.to_vec());
 
-        matrix.solve(WRONG_LENGTH_B_VECTOR.to_vec());
+        matrix.solve(&WRONG_LENGTH_B_VECTOR);
     }
 
     #[test]
@@ -213,18 +216,19 @@ mod f64tests {
         let matrix: Matrix<f64> = Matrix::square_matrix_from_list(&matrix_array.to_vec());
 
         assert_eq!(
-            matrix.solve(B_VECTOR.to_vec()).unwrap_err(),
+            matrix.solve(&B_VECTOR).unwrap_err(),
             "The system was inconsistent and there is no solution for b."
         );
     }
 
     #[test]
     fn solve_2() {
-        let b: Matrix<f64> = Matrix::square_matrix_from_list(&STANDARD_MATRIX_B.to_vec());
+        let matrix_array : [f64;9] = [5.7, 1.2, 0.0, 4.9, -7.1, -2.1, 77.1, 0.0, 9.1];
+        let matrix: Matrix<f64> = Matrix::square_matrix_from_list(&matrix_array.to_vec());
 
         let solution_vector: Vec<f64> = STANDARD_MATRIX_B_SOLUTION.to_vec();
 
-        let b_solution: Vec<f64> = b.solve(B_VECTOR.to_vec()).unwrap();
+        let b_solution: Vec<f64> = matrix.solve(B_VECTOR).unwrap();
 
         for i in 0..solution_vector.len() {
             assert!((solution_vector[i] - b_solution[i]).abs() < COMPARISON_TOLERANCE);
@@ -232,24 +236,25 @@ mod f64tests {
     }
 
     #[test]
-    fn least_squares_a() {
+    fn least_squares_1() {
         let matrix_array : [f64;9] = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0];
 
         let matrix: Matrix<f64> = Matrix::square_matrix_from_list(&matrix_array.to_vec());
 
         assert_eq!(
-            matrix.least_squares_solution(B_VECTOR.to_vec()).unwrap_err(),
+            matrix.least_squares_solution(B_VECTOR).unwrap_err(),
             "The system was inconsistent and there is no solution for b. (In this case, these means an arithmetic problem, probably due to floating point inaccuracy)."
         );
     }
 
     #[test]
-    fn least_squares_b() {
-        let b: Matrix<f64> = Matrix::square_matrix_from_list(&STANDARD_MATRIX_B.to_vec());
+    fn least_squares_2() {
+        let matrix_array : [f64;9] = [5.7, 1.2, 0.0, 4.9, -7.1, -2.1, 77.1, 0.0, 9.1];
+        let matrix: Matrix<f64> = Matrix::square_matrix_from_list(&matrix_array);
 
         let solution_vector: Vec<f64> = STANDARD_MATRIX_B_SOLUTION.to_vec();
 
-        let b_solution: Vec<f64> = b.least_squares_solution(B_VECTOR.to_vec()).unwrap();
+        let b_solution: Vec<f64> = matrix.least_squares_solution(&B_VECTOR).unwrap();
 
         for i in 0..solution_vector.len() {
             assert!((solution_vector[i] - b_solution[i]).abs() < COMPARISON_TOLERANCE);
@@ -439,7 +444,7 @@ mod f32tests {
     fn wrong_length_b_vector() {
         let a: Matrix<f32> = Matrix::square_matrix_from_list(&STANDARD_MATRIX_A.to_vec());
 
-        a.solve(WRONG_LENGTH_B_VECTOR.to_vec());
+        a.solve(&WRONG_LENGTH_B_VECTOR.to_vec());
     }
 
     #[test]
@@ -447,7 +452,7 @@ mod f32tests {
         let a: Matrix<f32> = Matrix::square_matrix_from_list(&STANDARD_MATRIX_A.to_vec());
 
         assert_eq!(
-            a.solve(B_VECTOR.to_vec()).unwrap_err(),
+            a.solve(&B_VECTOR.to_vec()).unwrap_err(),
             "The system was inconsistent and there is no solution for b."
         );
     }
@@ -458,7 +463,7 @@ mod f32tests {
 
         let solution_vector: Vec<f32> = STANDARD_MATRIX_B_SOLUTION.to_vec();
 
-        let b_solution: Vec<f32> = b.solve(B_VECTOR.to_vec()).unwrap();
+        let b_solution: Vec<f32> = b.solve(&B_VECTOR.to_vec()).unwrap();
 
         for i in 0..solution_vector.len() {
             assert!((solution_vector[i] - b_solution[i]).abs() < COMPARISON_TOLERANCE);
@@ -471,7 +476,7 @@ mod f32tests {
 
         let solution_vector: Vec<f32> = LEAST_SQUARES_A_SOLUTION.to_vec();
 
-        let a_solution: Vec<f32> = a.least_squares_solution(B_VECTOR.to_vec()).unwrap();
+        let a_solution: Vec<f32> = a.least_squares_solution(&B_VECTOR.to_vec()).unwrap();
 
         for i in 0..solution_vector.len() {
             assert!((solution_vector[i] - a_solution[i]).abs() < COMPARISON_TOLERANCE);
@@ -484,7 +489,7 @@ mod f32tests {
 
         let solution_vector: Vec<f32> = STANDARD_MATRIX_B_SOLUTION.to_vec();
 
-        let b_solution: Vec<f32> = b.least_squares_solution(B_VECTOR.to_vec()).unwrap();
+        let b_solution: Vec<f32> = b.least_squares_solution(&B_VECTOR.to_vec()).unwrap();
 
         for i in 0..solution_vector.len() {
             assert!((solution_vector[i] - b_solution[i]).abs() < COMPARISON_TOLERANCE);
