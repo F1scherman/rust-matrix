@@ -17,8 +17,8 @@ trait_set! {
 /// Represents a mathematical matrix, zero-indexed
 #[derive(Debug)]
 pub struct Matrix<T>
-where
-    T: MatrixCompatible,
+    where
+        T: MatrixCompatible,
 {
     matrix: Vec<Vec<T>>,
     rows: usize,
@@ -26,8 +26,8 @@ where
 }
 
 impl<T> Matrix<T>
-where
-    T: MatrixCompatible,
+    where
+        T: MatrixCompatible,
 {
     // -----CONSTRUCTORS-----
 
@@ -436,8 +436,8 @@ where
 }
 
 impl<T> Clone for Matrix<T>
-where
-    T: MatrixCompatible,
+    where
+        T: MatrixCompatible,
 {
     /// Safely clones this matrix
     fn clone(&self) -> Self {
@@ -562,8 +562,8 @@ gen_ops!(
 );
 
 impl<T> cmp::PartialEq for Matrix<T>
-where
-    T: MatrixCompatible,
+    where
+        T: MatrixCompatible,
 {
     fn eq(&self, other: &Self) -> bool {
         self.equals(other, T::zero())
@@ -571,8 +571,8 @@ where
 }
 
 impl<T> ops::Index<usize> for Matrix<T>
-where
-    T: MatrixCompatible,
+    where
+        T: MatrixCompatible,
 {
     type Output = Vec<T>;
 

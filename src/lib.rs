@@ -471,6 +471,7 @@ mod f32tests {
 
 mod complextests {
     use crate::complex::ComplexNumber;
+
     #[test]
     fn create_complex_number() {
         let mut z: ComplexNumber<f64> = ComplexNumber {
