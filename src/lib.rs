@@ -326,4 +326,12 @@ mod complex_tests {
         assert_eq!(z.imaginary, 0.0);
         assert_eq!(z.magnitude(), 0.0);
     }
+
+    #[test]
+    fn complex_number_normalize() {
+        let z= "3 + 4i".parse::<ComplexNumber<f64>>().unwrap().normalize();
+        assert_eq!(z.real, 3.0 / 5.0);
+        assert_eq!(z.imaginary, 4.0 / 5.0);
+        assert_eq!(z.magnitude(), 1.0);
+    }
 }

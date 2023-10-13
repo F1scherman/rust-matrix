@@ -90,6 +90,16 @@ impl<T> ComplexNumber<T>
     pub fn magnitude(&self) -> T {
         (self.real * self.real + self.imaginary * self.imaginary).sqrt()
     }
+
+    /// Normalizes this vector to a magnitude of 1
+    pub fn normalize(&self) -> Self {
+        *self / self.magnitude()
+    }
+
+    /// Resizes this vector to the given magnitude
+    pub fn resize(&self, magnitude: T) -> Self {
+        self.normalize() * magnitude
+    }
 }
 
 impl<T> One for ComplexNumber<T>
