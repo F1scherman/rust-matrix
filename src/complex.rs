@@ -1,17 +1,15 @@
-use bigdecimal::BigDecimal;
 /// Brayden Jonsson, 2023
 /// https://github.com/BraydenJonsson/rust-matrix
 ///
 /// Contains a struct and methods for representing a complex number
+use bigdecimal::BigDecimal;
 use gen_ops::gen_ops;
 use num_traits::Num;
-use num_traits::NumOps;
 use num_traits::One;
 use num_traits::Signed;
 use num_traits::Zero;
 use std::cmp;
 use std::ops::Neg;
-use std::ops::Rem;
 use trait_set::trait_set;
 
 pub trait ComplexFunctions {
