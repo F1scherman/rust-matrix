@@ -20,13 +20,13 @@ pub trait ComplexFunctions {
 
 impl ComplexFunctions for f64 {
     fn sqrt(&self) -> Self {
-        self.sqrt()
+        f64::sqrt(*self)
     }
 }
 
 impl ComplexFunctions for f32 {
     fn sqrt(&self) -> Self {
-        self.sqrt()
+        f32::sqrt(*self)
     }
 }
 
@@ -308,13 +308,13 @@ impl<T> FromStr for ComplexNumber<T>
     type Err = ParseComplexNumberError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let mut parts: Vec<&str> = s.split(&['+','i']).collect();
+        let parts: Vec<&str> = s.split(&['+','i']).collect();
 
         let real_result = parts[0].trim().parse::<T>();
         let imaginary_result = parts[1].trim().parse::<T>();
 
         if real_result.is_err() || imaginary_result.is_err() {
-            Err(ParseComplexNumberError)?
+            Err(ParseComplexNumberError)
         } else {
             Ok(
                 Self {

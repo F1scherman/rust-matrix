@@ -8,6 +8,7 @@ mod matrix;
 mod complex;
 
 #[cfg(test)]
+#[allow(unused)]
 mod f64tests {
     use crate::matrix::Matrix;
 
@@ -246,6 +247,8 @@ mod f64tests {
     }
 }
 
+#[cfg(test)]
+#[allow(unused)]
 mod complex_tests {
     use crate::complex::ComplexNumber;
 
@@ -255,15 +258,13 @@ mod complex_tests {
             real: 5.6,
             imaginary: 2.5,
         };
-        println!("{}", z.real);
-        println!("{}", z.imaginary);
-        assert!(z.real == 5.6);
-        assert!(z.imaginary == 2.5);
+        assert_eq!(z.real, 5.6);
+        assert_eq!(z.imaginary, 2.5);
         z += ComplexNumber {
             real: 5.6,
             imaginary: 2.5,
         };
-        assert!(z.real == 11.2);
+        assert_eq!(z.real, 11.2);
     }
 
     #[test]
@@ -282,24 +283,31 @@ mod complex_tests {
         let multiplication: ComplexNumber<f64> = z1 * z2;
         let division: ComplexNumber<f64> = z1 / z2;
 
-        assert!(addition.real == -6.5);
-        assert!(addition.imaginary == 7.3);
+        assert_eq!(addition.real, -6.5);
+        assert_eq!(addition.imaginary, 7.3);
 
-        assert!(subtraction.real == 17.7);
-        assert!(subtraction.imaginary == -2.3);
+        assert_eq!(subtraction.real, 17.7);
+        assert_eq!(subtraction.imaginary, -2.3);
 
-        assert!(multiplication.real == -79.759999999999991);
-        assert!(multiplication.imaginary == -3.3700000000000010);
+        assert_eq!(multiplication.real, -79.759999999999991);
+        assert_eq!(multiplication.imaginary, -3.3700000000000010);
 
-        assert!(division.real == -0.32906462083210386);
-        assert!(division.imaginary == -0.33714960165240482);
+        assert_eq!(division.real, -0.32906462083210386);
+        assert_eq!(division.imaginary, -0.33714960165240482);
     }
 
     #[test]
     fn complex_number_parsing() {
-        let z1:ComplexNumber<f64> = "5.9 + 6.4i".parse().unwrap();
+        let z:ComplexNumber<f64> = "5.9 + 6.4i".parse().unwrap();
 
-        assert!(z1.real == 5.9);
-        assert!(z1.imaginary == 6.4);
+        assert_eq!(z.real, 5.9);
+        assert_eq!(z.imaginary, 6.4);
+    }
+
+    #[test]
+    fn complex_number_magnitude() {
+        let z:ComplexNumber<f64> = "5.9 + 0i".parse().unwrap();
+
+        assert_eq!(z.magnitude(), 5.9);
     }
 }
