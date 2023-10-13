@@ -8,6 +8,7 @@ use std::cmp;
 use std::ops;
 use trait_set::trait_set;
 
+
 trait_set! {
     pub trait MatrixCompatible = num_traits::NumAssign
     + num_traits::sign::Signed
@@ -137,8 +138,7 @@ impl<T> Matrix<T>
         starting_column: usize,
         ending_column: usize,
     ) -> Self {
-        let mut new_matrix: Self =
-            Self::new(ending_row - starting_row, ending_column - starting_column);
+        let mut new_matrix: Self = Self::new(ending_row - starting_row, ending_column - starting_column);
 
         for row in starting_row..ending_row {
             for column in starting_column..ending_column {
@@ -193,7 +193,7 @@ impl<T> Matrix<T>
         x_vector
     }
 
-    // -----PUBLIC METHODS-----
+// -----PUBLIC METHODS-----
 
     /// Gets the value of the matrix at the given indices (0 indexed). Functionally equivalent to Matrix\[row\]\[column\]
     pub fn get_value(&self, row: usize, column: usize) -> T {
@@ -260,8 +260,7 @@ impl<T> Matrix<T>
                 }
                 factor = operating_matrix[row][current_pivot_column];
                 for column in current_pivot_column..self.columns {
-                    let subtraction_factor: T =
-                        operating_matrix[current_pivot_row][column] * factor;
+                    let subtraction_factor: T = operating_matrix[current_pivot_row][column] * factor;
                     operating_matrix[row][column] -= subtraction_factor;
                 }
             }
@@ -315,8 +314,7 @@ impl<T> Matrix<T>
             return Err("Matrix is not invertible");
         }
 
-        let inverse_matrix: Self =
-            reduced_matrix.partition(0, self.rows, self.columns, reduced_matrix.columns);
+        let inverse_matrix: Self = reduced_matrix.partition(0, self.rows, self.columns, reduced_matrix.columns);
         Ok(inverse_matrix)
     }
 
@@ -344,9 +342,7 @@ impl<T> Matrix<T>
         let a_transpose_a_matrix: Self = self.transpose() * self.clone();
         let a_transpose_b_matrix: Self = self.transpose() * b_matrix;
 
-        let solved_matrix: Self = a_transpose_a_matrix
-            .combine(&a_transpose_b_matrix)
-            .reduced_echelon_form();
+        let solved_matrix: Self = a_transpose_a_matrix.combine(&a_transpose_b_matrix).reduced_echelon_form();
 
         let last_column_index: usize = solved_matrix.columns - 1;
         let zero: T = T::zero();
@@ -412,8 +408,7 @@ impl<T> Matrix<T>
 
         for row in 0..self.rows {
             for column in 0..self.columns {
-                let difference: T =
-                    num_traits::sign::abs_sub(self[row][column], other[row][column]);
+                let difference: T = num_traits::sign::abs_sub(self[row][column], other[row][column]);
                 // is_positive() should exclude zero, but in my testing it doesn't
                 if (difference - delta).is_positive() && !(difference - delta).is_zero() {
                     return false;

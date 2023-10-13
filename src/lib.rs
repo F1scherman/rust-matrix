@@ -1,6 +1,7 @@
 /// Brayden Jonsson, 2023
 /// https://github.com/BraydenJonsson/rust-matrix
 ///
+
 /// Contains tests for the matrix library
 /// All solution matrices were calculated with reshish.com
 mod matrix;
@@ -65,7 +66,7 @@ mod f64tests {
 
         let a = Matrix::square_matrix_from_list(&a_array);
         let b = Matrix::square_matrix_from_list(&b_array);
-
+      
         let solution_array = [246.8, -13.0, 23.1, 509.9, -30.7, 44.1, 773.0, -48.4, 65.1];
         let solution = Matrix::square_matrix_from_list(&solution_array);
         assert!(solution.equals(&(a * b), COMPARISON_TOLERANCE));
@@ -155,6 +156,7 @@ mod f64tests {
     fn transpose_1() {
         let matrix_array = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0];
         let matrix = Matrix::square_matrix_from_list(&matrix_array);
+
 
         let solution_array = [1.0, 4.0, 7.0, 2.0, 5.0, 8.0, 3.0, 6.0, 9.0];
         let solution_matrix = Matrix::square_matrix_from_list(&solution_array);
