@@ -26,6 +26,7 @@ pub struct Matrix<T>
     columns: usize,
 }
 
+#[allow(unused)]
 impl<T> Matrix<T>
     where
         T: MatrixCompatible,

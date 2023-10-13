@@ -54,6 +54,7 @@ pub struct ComplexNumber<T>
     pub imaginary: T,
 }
 
+#[allow(unused)]
 impl<T> ComplexNumber<T>
     where
         T: ComplexCompatible,
