@@ -294,4 +294,12 @@ mod complex_tests {
         assert!(division.real == -0.32906462083210386);
         assert!(division.imaginary == -0.33714960165240482);
     }
+
+    #[test]
+    fn complex_number_parsing() {
+        let z1:ComplexNumber<f64> = "5.9 + 6.4i".parse().unwrap();
+
+        assert!(z1.real == 5.9);
+        assert!(z1.imaginary == 6.4);
+    }
 }

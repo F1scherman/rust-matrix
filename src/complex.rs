@@ -10,27 +10,28 @@ use num_traits::Signed;
 use num_traits::Zero;
 use std::cmp;
 use std::ops::Neg;
+use std::str::FromStr;
 use trait_set::trait_set;
 
 pub trait ComplexFunctions {
     // required
-    fn sqrt(self) -> Self;
+    fn sqrt(&self) -> Self;
 }
 
 impl ComplexFunctions for f64 {
-    fn sqrt(self) -> Self {
+    fn sqrt(&self) -> Self {
         self.sqrt()
     }
 }
 
 impl ComplexFunctions for f32 {
-    fn sqrt(self) -> Self {
+    fn sqrt(&self) -> Self {
         self.sqrt()
     }
 }
 
 impl ComplexFunctions for BigDecimal {
-    fn sqrt(self) -> Self {
+    fn sqrt(&self) -> Self {
         BigDecimal::sqrt(&self).unwrap()
     }
 }
@@ -39,22 +40,23 @@ trait_set! {
     pub trait ComplexCompatible = num_traits::NumAssign
     + num_traits::sign::Signed
     + Copy
-    + ComplexFunctions;
+    + ComplexFunctions
+    + FromStr;
 }
 
 /// Represents a complex number
 #[derive(Debug, Copy)]
 pub struct ComplexNumber<T>
-where
-    T: ComplexCompatible,
+    where
+        T: ComplexCompatible,
 {
     pub real: T,
     pub imaginary: T,
 }
 
 impl<T> ComplexNumber<T>
-where
-    T: ComplexCompatible,
+    where
+        T: ComplexCompatible,
 {
     // -------- CONSTRUCTORS ------------
     /// Returns a new Complex Number set to 0
@@ -90,8 +92,8 @@ where
 }
 
 impl<T> One for ComplexNumber<T>
-where
-    T: ComplexCompatible,
+    where
+        T: ComplexCompatible,
 {
     fn one() -> ComplexNumber<T> {
         ComplexNumber {
@@ -102,8 +104,8 @@ where
 }
 
 impl<T> Zero for ComplexNumber<T>
-where
-    T: ComplexCompatible,
+    where
+        T: ComplexCompatible,
 {
     fn zero() -> ComplexNumber<T> {
         ComplexNumber {
@@ -130,8 +132,7 @@ impl<T> Num for ComplexNumber<T> where T: ComplexCompatible {
                 real: result.ok().unwrap(),
                 imaginary: T::zero(),
             });
-        }
-        else {
+        } else {
             output = Err(result.err().unwrap());
         }
 
@@ -155,7 +156,7 @@ impl<T> Signed for ComplexNumber<T> where T: ComplexCompatible {
     fn abs(&self) -> ComplexNumber<T> {
         ComplexNumber {
             real: self.magnitude(),
-            imaginary: T::zero()
+            imaginary: T::zero(),
         }
     }
 
@@ -163,12 +164,12 @@ impl<T> Signed for ComplexNumber<T> where T: ComplexCompatible {
     fn abs_sub(&self, other: &Self) -> ComplexNumber<T> {
         let a: ComplexNumber<T> = ComplexNumber {
             real: self.magnitude(),
-            imaginary: T::zero()
+            imaginary: T::zero(),
         };
 
         let b: ComplexNumber<T> = ComplexNumber {
             real: other.magnitude(),
-            imaginary: T::zero()
+            imaginary: T::zero(),
         };
 
         a - b
@@ -275,8 +276,8 @@ gen_ops!(
 );
 
 impl<T> cmp::PartialEq for ComplexNumber<T>
-where
-    T: ComplexCompatible,
+    where
+        T: ComplexCompatible,
 {
     /// Check if two complex numbers are equal
     ///
@@ -287,13 +288,40 @@ where
 }
 
 impl<T> Clone for ComplexNumber<T>
-where
-    T: ComplexCompatible,
+    where
+        T: ComplexCompatible,
 {
     fn clone(&self) -> Self {
         Self {
             real: self.real.clone(),
             imaginary: self.imaginary.clone(),
+        }
+    }
+}
+
+#[derive(Debug)]
+pub struct ParseComplexNumberError;
+
+impl<T> FromStr for ComplexNumber<T>
+    where T:ComplexCompatible,
+{
+    type Err = ParseComplexNumberError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let mut parts: Vec<&str> = s.split(&['+','i']).collect();
+
+        let real_result = parts[0].trim().parse::<T>();
+        let imaginary_result = parts[1].trim().parse::<T>();
+
+        if real_result.is_err() || imaginary_result.is_err() {
+            Err(ParseComplexNumberError)?
+        } else {
+            Ok(
+                Self {
+                    real: real_result.unwrap_or(T::zero()),
+                    imaginary: imaginary_result.unwrap_or(T::zero()),
+                }
+            )
         }
     }
 }
