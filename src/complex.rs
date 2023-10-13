@@ -2,12 +2,10 @@
 /// https://github.com/BraydenJonsson/rust-matrix
 ///
 /// Contains a struct and methods for representing a complex number
+
 use bigdecimal::BigDecimal;
 use gen_ops::gen_ops;
-use num_traits::Num;
-use num_traits::One;
-use num_traits::Signed;
-use num_traits::Zero;
+use num_traits;
 use std::cmp;
 use std::ops::Neg;
 use std::str::FromStr;
@@ -102,7 +100,7 @@ impl<T> ComplexNumber<T>
     }
 }
 
-impl<T> One for ComplexNumber<T>
+impl<T> num_traits::One for ComplexNumber<T>
     where
         T: ComplexCompatible,
 {
@@ -114,7 +112,7 @@ impl<T> One for ComplexNumber<T>
     }
 }
 
-impl<T> Zero for ComplexNumber<T>
+impl<T> num_traits::Zero for ComplexNumber<T>
     where
         T: ComplexCompatible,
 {
@@ -130,13 +128,13 @@ impl<T> Zero for ComplexNumber<T>
     }
 }
 
-impl<T> Num for ComplexNumber<T> where T: ComplexCompatible {
+impl<T> num_traits::Num for ComplexNumber<T> where T: ComplexCompatible {
     type FromStrRadixErr = T::FromStrRadixErr;
 
     /// Only works on the real portion
     fn from_str_radix(str: &str, radix: u32) -> Result<Self, Self::FromStrRadixErr> {
-        let result: Result<T, <T as Num>::FromStrRadixErr> = T::from_str_radix(str, radix);
-        let output: Result<ComplexNumber<T>, <T as Num>::FromStrRadixErr>;
+        let result: Result<T, T::FromStrRadixErr> = T::from_str_radix(str, radix);
+        let output: Result<ComplexNumber<T>, T::FromStrRadixErr>;
 
         if result.is_ok() {
             output = Ok(ComplexNumber {
@@ -162,7 +160,7 @@ impl<T> Neg for ComplexNumber<T> where T: ComplexCompatible {
     }
 }
 
-impl<T> Signed for ComplexNumber<T> where T: ComplexCompatible {
+impl<T> num_traits::sign::Signed for ComplexNumber<T> where T: ComplexCompatible {
     /// Equal to the magnitude/distance from the origin
     fn abs(&self) -> ComplexNumber<T> {
         ComplexNumber {

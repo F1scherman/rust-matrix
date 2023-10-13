@@ -4,6 +4,7 @@
 
 /// Contains tests for the matrix library
 /// All solution matrices were calculated with reshish.com
+
 mod matrix;
 mod complex;
 

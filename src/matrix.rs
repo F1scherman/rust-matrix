@@ -2,6 +2,7 @@
 /// https://github.com/BraydenJonsson/rust-matrix
 ///
 /// Contains a struct and methods for representing a mathematical matrix
+
 use num_traits;
 use gen_ops::gen_ops;
 use std::cmp;
